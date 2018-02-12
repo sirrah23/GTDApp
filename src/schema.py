@@ -1,5 +1,4 @@
-from mongoengine import *
-
+from mongoengine import connect, Document, StringField, ListField, ReferenceField
 
 def database_setup(db_name):
     connect(db_name)
