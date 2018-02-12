@@ -13,3 +13,7 @@ class Item(Document):
 class Task(Document):
     description = StringField(required=True)
     status = StringField(required=True)
+
+class Project(Document):
+    description = StringField(required=True)
+    tasks = ListField(ReferenceField(Task))
