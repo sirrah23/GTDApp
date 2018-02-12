@@ -8,3 +8,8 @@ def database_setup(db_name):
 class Item(Document):
     description = StringField(required=True)
     location = StringField(required=True)
+
+
+class Task(Document):
+    description = StringField(required=True)
+    status = StringField(required=True)

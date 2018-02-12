@@ -1,4 +1,4 @@
-from .schema import database_setup, Item
+from .schema import database_setup, Item, Task
 
 
 class GTDRepo:
@@ -20,5 +20,18 @@ class GTDRepo:
     def get_all_items(cls):
         if cls.connected:
             return list(Item.objects())
+        else:
+            return None
+
+    @classmethod
+    def add_task(cls, description, status="todo"):
+        if cls.connected:
+            t = Task(description=description, status=status)
+            t.save()
+    
+    @classmethod
+    def get_all_tasks(cls):
+        if cls.connected:
+            return list(Task.objects())
         else:
             return None
