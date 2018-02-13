@@ -1,5 +1,5 @@
-from flask import Flask, render_template, redirect, request
-
+from flask import Flask, render_template, redirect, request, flash
+from wtforms import Form, BooleanField, StringField, PasswordField, validators
 
 app = Flask(__name__)
 
@@ -15,8 +15,22 @@ def login():
     return render_template("login.html", error=error)
 
 
-# Route for handling the sign up page logic
-@app.route("/signup", methods=["GET", "POST"])
-def signup():
-    error = None
-    return render_template("signup.html", error=error)
+class RegistrationForm(Form):
+    username = StringField('Username', [validators.Length(min=4, max=25)])
+    email = StringField('Email Address', [validators.Length(min=6, max=35)])
+    password = PasswordField('New Password', [
+        validators.DataRequired(),
+        validators.EqualTo('confirm', message='Passwords must match')
+    ])
+    confirm = PasswordField('Repeat Password')
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm(request.form)
+    if request.method == 'POST' and form.validate():
+        print(form.username.data, form.email.data,
+                    form.password.data)
+        flash('Thanks for registering')
+        return redirect('/home')
+    return render_template('register.html', form=form)

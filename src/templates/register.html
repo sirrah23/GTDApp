@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>GTD App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="static/bootstrap.min.css" rel="stylesheet" media="screen">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Registration Form</h1>
+      <br>
+      {% from "_formhelpers.html" import render_field %}
+      <form method=post>
+        <dl>
+          {{ render_field(form.username) }}
+          {{ render_field(form.email) }}
+          {{ render_field(form.password) }}
+          {{ render_field(form.confirm) }}
+        </dl>
+        <p><input type=submit value=Register>
+      </form>
+    </div>
+  </body>
+</html>
