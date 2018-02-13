@@ -38,3 +38,13 @@ def test_store_project():
     assert projects[0].tasks[0].id in tasks
     assert projects[0].tasks[1].id in tasks
     drop_db(DBNAME)
+
+def test_store_user():
+    drop_db(DBNAME)
+    GTDRepo.add_user(username="user1", password="mypass", email="user@gtd.com")
+    users = GTDRepo.get_all_users()
+    assert len(users) == 1
+    assert users[0].username == "user1"
+    assert users[0].password == "mypass"
+    assert users[0].email == "user@gtd.com"
+    drop_db(DBNAME)
