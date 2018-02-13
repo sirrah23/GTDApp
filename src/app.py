@@ -1,17 +1,39 @@
 from flask import Flask, render_template, redirect, request, flash
 from wtforms import Form, BooleanField, StringField, PasswordField, validators
+from flask_login import LoginManager, login_user, login_required, UserMixin, logout_user
+from src.repo import GTDRepo
 
+class LoggedInUserWrapper(UserMixin):
+
+    def __init__(self, u):
+        self.u = u
+    
+    def get_id(self):
+        return str(self.u.id)
+
+
+login_manager = LoginManager()
 app = Flask(__name__)
+app.secret_key = "myspookysecret"
+login_manager.init_app(app)
+GTDRepo.connect("gtd") # TODO: config
+
+@login_manager.user_loader
+def load_user(user_id):
+    return LoggedInUserWrapper(GTDRepo.get_user_by_id(user_id))
 
 # Route for handling the login page logic
 @app.route("/", methods=["GET", "POST"])
 def login():
     error = None
     if request.method == "POST":
-        if request.form["username"] != "admin" or request.form["password"] != "admin":
-            error = "Invalid Credentials. Please try again."
-        else:
+        user = GTDRepo.get_user_by_username(request.form["username"])
+        if user and user.password == request.form["password"]:
+            user = LoggedInUserWrapper(user)
+            login_user(user)
             return redirect("/home")
+        else:
+            error = "Invalid Credentials. Please try again."
     return render_template("login.html", error=error)
 
 
@@ -34,3 +56,14 @@ def register():
         flash('Thanks for registering')
         return redirect('/home')
     return render_template('register.html', form=form)
+
+@app.route("/home")
+@login_required
+def home():
+    return render_template("home.html")
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
