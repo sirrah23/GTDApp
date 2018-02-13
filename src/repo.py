@@ -70,3 +70,12 @@ class GTDRepo:
                 return res.first()
             else:
                 return None
+
+    @classmethod
+    def get_user_by_username(cls, username):
+        if cls.connected:
+            res =  User.objects(username=username)
+            if res.count() > 0:
+                return res.first()
+            else:
+                return None
