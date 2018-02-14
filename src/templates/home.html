@@ -1,2 +1,60 @@
-HOME
-<a href="/logout">Logout</a>
+<html>
+  <head>
+    <title>GTD App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <link href="static/bootstrap.min.css" rel="stylesheet" media="screen">
+  </head>
+  <body>
+    {% raw %}
+    <div class="container">
+      <div id="app">
+          <span id="mode" v-on:click="toggleMode()"> <h1>{{ modeStr }}</h1></span>
+          <ul id="items" v-if="mode === 0 || mode === 1">
+              <li v-for="item in items" v-if="item.location === modeStr.toLowerCase()">
+                  {{ item.description }}
+              </li>
+          </ul>
+          <ul id="tasks" v-if="mode === 2">
+              <li v-for="task in tasks">
+                  {{ task.description }} ---- {{ task.status.toUpperCase() }}
+              </li>
+          </ul>
+      </div>
+    </div>
+    {% endraw %}
+    <a href="/logout">Logout</a>
+  </body>
+  <script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            mode: 0,
+            modeStrs: ["Inbox", "Someday/Maybe", "Tasks"],
+            items: [
+                {id: "1", description: "A random thought", location: "inbox"},
+                {id: "2", description: "Another random thought", location: "inbox"},
+                {id: "3", description: "Project A", location: "inbox"},
+                {id: "4", description: "I should buy a house", location: "someday/maybe"},
+                {id: "5", description: "I should buy a boat", location: "someday/maybe"}
+            ],
+            tasks: [
+                {id: "6", description: "Task 1", status: "todo"},
+                {id: "7", description: "Task 2", status: "todo"},
+                {id: "8", description: "Task 3", status: "done"},
+            ],
+            //TODO: Add projects data structure here...
+        },
+        computed: {
+            modeStr(){
+                return this.modeStrs[this.mode];
+            }
+        },
+        methods: {
+            toggleMode(){
+                this.mode = (this.mode + 1) % this.modeStrs.length; 
+            }
+        }
+    })
+  </script>
+</html>
