@@ -7,8 +7,10 @@ class LoggedInUserWrapper(UserMixin):
 
     def __init__(self, u):
         self.u = u
-    
+
     def get_id(self):
+        if not self.u:
+            return None
         return str(self.u.id)
 
 
