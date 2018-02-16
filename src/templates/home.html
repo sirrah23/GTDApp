@@ -3,44 +3,71 @@
     <title>GTD App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <link href="static/bootstrap.min.css" rel="stylesheet" media="screen">
+    <style>
+        #app {
+            display: grid;
+            grid-template-columns: 450px auto 450px;
+            grid-template-rows: 35px auto;
+        }
+
+        .header {
+            grid-column: 2 / 4;
+        }
+
+        .content {
+            grid-column: 2 / 4;
+        }
+
+        #button-forward{
+            justify-self: start;
+        }
+
+        #button-back{
+            justify-self: end;
+        }
+
+    </style>
   </head>
   <body>
     {% raw %}
     <div class="container">
       <div id="app">
           <!-- TODO: Inline these buttons...flexbox? -->
-          <span id="button-back"><button v-on:click="toggleModeBackward()"><<<</button>
-          <span id="mode"> <h1>{{ modeStr }}</h1></span>
-          <span id="button-forward"><button v-on:click="toggleModeForward()">>>></button>
-          <!-- Items or Someday/Maybe list -->
-          <ul id="items" v-if="mode === 0 || mode === 1">
-              <li v-for="item in items" v-if="item.location === modeStr.toLowerCase()">
-                  {{ item.description }}
-              </li>
-          </ul>
-          <!-- Task List -->
-          <ul id="tasks" v-if="mode === 2">
-              <li v-for="task in tasks">
-                  {{ task.description }} ---- {{ task.status.toUpperCase() }}
-              </li>
-          </ul>
-          <!-- Project List -->
-          <ul id="projects" v-if="mode === 3">
-              <li v-for="project in projects">
-                task.description
-                <ul class="project-tasks">
-                    <li v-for="task in project.tasks">
-                        <!-- TODO: Task component? We could abstract it and use it in two places-->
-                        {{ task.description }} ---- {{ task.status.toUpperCase() }}
-                    </li>
-                </ul>
-              </li>
-          </ul>
+          <div class="header">
+            <span id="button-back"><button v-on:click="toggleModeBackward()"><<<</button></span>
+            <span id="button-forward"><button v-on:click="toggleModeForward()">>>></button></span>
+          </div>
+          <div class="content">
+            <span id="mode"> <h1>{{ modeStr }}</h1></span>
+            <!-- Items or Someday/Maybe list -->
+            <ul id="items" v-if="mode === 0 || mode === 1">
+                <li v-for="item in items" v-if="item.location === modeStr.toLowerCase()">
+                    {{ item.description }}
+                </li>
+            </ul>
+            <!-- Task List -->
+            <ul id="tasks" v-if="mode === 2">
+                <li v-for="task in tasks">
+                    {{ task.description }} ---- {{ task.status.toUpperCase() }}
+                </li>
+            </ul>
+            <!-- Project List -->
+            <ul id="projects" v-if="mode === 3">
+                <li v-for="project in projects">
+                    task.description
+                    <ul class="project-tasks">
+                        <li v-for="task in project.tasks">
+                            <!-- TODO: Task component? We could abstract it and use it in two places-->
+                            {{ task.description }} ---- {{ task.status.toUpperCase() }}
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <a href="/logout">Logout</a>
+        <div>
       </div>
     </div>
     {% endraw %}
-    <a href="/logout">Logout</a>
   </body>
   <script>
     var app = new Vue({
