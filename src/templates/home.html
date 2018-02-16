@@ -10,14 +10,28 @@
     <div class="container">
       <div id="app">
           <span id="mode" v-on:click="toggleMode()"> <h1>{{ modeStr }}</h1></span>
+          <!-- Items or Someday/Maybe list -->
           <ul id="items" v-if="mode === 0 || mode === 1">
               <li v-for="item in items" v-if="item.location === modeStr.toLowerCase()">
                   {{ item.description }}
               </li>
           </ul>
+          <!-- Task List -->
           <ul id="tasks" v-if="mode === 2">
               <li v-for="task in tasks">
                   {{ task.description }} ---- {{ task.status.toUpperCase() }}
+              </li>
+          </ul>
+          <!-- Project List -->
+          <ul id="projects" v-if="mode === 3">
+              <li v-for="project in projects">
+                task.description
+                <ul class="project-tasks">
+                    <li v-for="task in project.tasks">
+                        <!-- TODO: Task component? We could abstract it and use it in two places-->
+                        {{ task.description }} ---- {{ task.status.toUpperCase() }}
+                    </li>
+                </ul>
               </li>
           </ul>
       </div>
@@ -30,7 +44,8 @@
         el: '#app',
         data: {
             mode: 0,
-            modeStrs: ["Inbox", "Someday/Maybe", "Tasks"],
+            modeStrs: ["Inbox", "Someday/Maybe", "Tasks", "Projects"],
+            // TODO: Unhardcode this stuff once we have the api
             items: [
                 {id: "1", description: "A random thought", location: "inbox"},
                 {id: "2", description: "Another random thought", location: "inbox"},
@@ -43,7 +58,21 @@
                 {id: "7", description: "Task 2", status: "todo"},
                 {id: "8", description: "Task 3", status: "done"},
             ],
-            //TODO: Add projects data structure here...
+            projects: [
+                {id: "9", description: "Project A", tasks:[]},
+                {id: "10",
+                 description: "Project B",
+                 tasks:[
+                     {id: "12", description: "Project A Task 1", status: "next"},
+                     {id: "13", description: "Project A Task 2", status: "todo"},
+                 ]
+                },
+                {id: "11", description: "Project C",
+                 tasks:[
+                     {id: "14", description: "Project C Task 1", status: "todo"},
+                 ]
+                },
+            ]
         },
         computed: {
             modeStr(){
