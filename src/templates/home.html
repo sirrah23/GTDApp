@@ -32,37 +32,42 @@
     {% raw %}
     <div class="container">
       <div id="app">
-          <input id="add_gtd_thing" 
-            :placeholder="`New ${modeStr.toLowerCase()} item`"
-            v-on:keyup.enter="addGTDThing()"
-            v-model="newGTDThing"></input>
           <!-- TODO: Inline these buttons...flexbox? -->
           <div class="header">
             <span id="button-back"><button v-on:click="toggleModeBackward()"><<<</button></span>
             <span id="button-forward"><button v-on:click="toggleModeForward()">>>></button></span>
           </div>
           <div class="content">
+            <input id="add_gtd_thing" 
+                :placeholder="`New ${modeStr.toLowerCase()} item`"
+                v-on:keyup.enter="addGTDThing()"
+                v-model="newGTDThing">
+            </input>
             <span id="mode"> <h1>{{ modeStr }}</h1></span>
             <!-- Items or Someday/Maybe list -->
             <ul id="items" v-if="mode === 0 || mode === 1">
                 <li v-for="item in items" v-if="item.location === modeStr.toLowerCase()">
                     {{ item.description }}
+                    <button class=delete @click="deleteGTDThing(mode, item.id)">X</button>
                 </li>
             </ul>
             <!-- Task List -->
             <ul id="tasks" v-if="mode === 2">
                 <li v-for="task in tasks">
-                    {{ task.description }} ---- {{ task.status.toUpperCase() }}
+                    {{ task.description }} ---- {{ task.status.toUpperCase() }} 
+                    <button class=delete @click="deleteGTDThing(mode, task.id)">X</button>
                 </li>
             </ul>
             <!-- Project List -->
             <ul id="projects" v-if="mode === 3">
                 <li v-for="project in projects">
                     task.description
+                    <button class=delete @click="deleteGTDThing(mode, project.id)">X</button>
                     <ul class="project-tasks">
                         <li v-for="task in project.tasks">
                             <!-- TODO: Task component? We could abstract it and use it in two places-->
                             {{ task.description }} ---- {{ task.status.toUpperCase() }}
+                            <button class=delete @click="deleteGTDThing(mode, task.id)">X</button>
                         </li>
                     </ul>
                 </li>
@@ -79,10 +84,16 @@
         addNewItem(itemDescription){
             return new Promise((resolve, reject) => {
                 resolve({
-                    id: Math.floor(Math.random() * 15),
+                    id: Math.floor(Math.random() * 150),
                     description: itemDescription,
                     location: "inbox"
                 })
+            });
+        },
+        delete(mode, id){
+            return new Promise((resolve, reject) => {
+                console.log(`Deleting mode: ${mode}, id: ${id}`);
+                resolve(true);
             });
         },
     }
@@ -123,7 +134,7 @@
         },
         computed: {
             modeStr(){
-                return this.modeStrs[this.mode];
+                return this.computeModeStr();
             }
         },
         methods: {
@@ -137,6 +148,10 @@
                     this.mode = this.modeStrs.length - 1;
                 }
             },
+            computeModeStr(mode=null){
+                const mode_compute = mode ? mode : this.mode;
+                return this.modeStrs[mode_compute];
+            },
             addGTDThing(){
                 if(this.newGTDThing.length > 0){
                     APIConn.addNewItem(this.newGTDThing)
@@ -145,6 +160,29 @@
                         this.items.push(res);
                     })
                 }
+            },
+            deleteGTDThing(mode, id){
+                const curr_mode = this.computeModeStr(mode);
+                const properties = ["items", "items", "tasks", "projects"];
+                APIConn.delete(curr_mode, id).then(res => {
+                    if(res){
+                        const filtered_list = []
+                        for(let i = 0; i < this[properties[mode]].length; i++){
+                            let filtered_item = Object.assign({}, this[properties[mode]][i]);
+                            if(filtered_item.tasks){
+                                let new_tasks = []
+                                for(let j = 0; j < filtered_item.tasks.length; j++){
+                                    if(filtered_item.tasks[j].id !== id){new_tasks.push(filtered_item.tasks[j]);}
+                                }
+                                filtered_item.tasks = new_tasks;
+                            }
+                            if (filtered_item.id !== id){
+                                filtered_list.push(filtered_item);
+                            }
+                        }
+                        this[properties[mode]] = filtered_list;
+                    }
+                });
             }
         }
     })
