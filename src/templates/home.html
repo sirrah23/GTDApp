@@ -32,6 +32,10 @@
     {% raw %}
     <div class="container">
       <div id="app">
+          <input id="add_gtd_thing" 
+            :placeholder="`New ${modeStr.toLowerCase()} item`"
+            v-on:keyup.enter="addGTDThing()"
+            v-model="newGTDThing"></input>
           <!-- TODO: Inline these buttons...flexbox? -->
           <div class="header">
             <span id="button-back"><button v-on:click="toggleModeBackward()"><<<</button></span>
@@ -70,11 +74,24 @@
     {% endraw %}
   </body>
   <script>
-    var app = new Vue({
+    //NOTE: Temporary, stub API connection until we get a real one going
+    const APIConn = {
+        addNewItem(itemDescription){
+            return new Promise((resolve, reject) => {
+                resolve({
+                    id: Math.floor(Math.random() * 15),
+                    description: itemDescription,
+                    location: "inbox"
+                })
+            });
+        },
+    }
+    const app = new Vue({
         el: '#app',
         data: {
             mode: 0,
             modeStrs: ["Inbox", "Someday/Maybe", "Tasks", "Projects"],
+            newGTDThing: "",
             // TODO: Unhardcode this stuff once we have the api
             items: [
                 {id: "1", description: "A random thought", location: "inbox"},
@@ -120,6 +137,15 @@
                     this.mode = this.modeStrs.length - 1;
                 }
             },
+            addGTDThing(){
+                if(this.newGTDThing.length > 0){
+                    APIConn.addNewItem(this.newGTDThing)
+                    .then((res) => {
+                        this.newGTDThing = "";
+                        this.items.push(res);
+                    })
+                }
+            }
         }
     })
   </script>
