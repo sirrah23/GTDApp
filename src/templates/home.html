@@ -61,15 +61,23 @@
                 </li>
             </ul>
             <!-- Project List -->
-            <ul id="projects" v-if="mode === 3">
+            <ul id="projects" v-if="mode === 3" v-on:keyup.esc = "noFocusProject()">
                 <li v-for="project in projects">
                     {{ project.description }}
+                    <button class="add" @click="focusProject(project.id)">+</button>
                     <button class=delete @click="deleteGTDThing(mode, project.id)">X</button>
                     <ul class="project-tasks">
                         <li v-for="task in project.tasks">
                             <!-- TODO: Task component? We could abstract it and use it in two places-->
                             {{ task.description }} ---- {{ task.status.toUpperCase() }}
                             <button class=delete @click="deleteGTDThing(mode, task.id)">X</button>
+                        </li>
+                        <li v-if="focusedProjectID === project.id">
+                            <input 
+                                v-model="newGTDSubtask"
+                                v-on:keyup.enter = "addProjectSubtask()"
+                            >
+                            </input>
                         </li>
                     </ul>
                 </li>
@@ -115,6 +123,15 @@
                     tasks: []
                 });
             });
+        },
+        addProjectSubtask(pid, description){
+            return new Promise((resolve, reject) => {
+                resolve({
+                    id: Math.floor(Math.random() * 150),
+                    description,
+                    status: "todo"
+                });
+            });
         }
     }
 
@@ -123,7 +140,9 @@
         data: {
             mode: 0,
             modeStrs: ["Inbox", "Someday/Maybe", "Tasks", "Projects"],
-            newGTDThing: "",
+            newGTDThing: "", //TODO: Make this less generic `thing`
+            newGTDSubtask: "",
+            focusedProjectID: "",
             // TODO: Unhardcode this stuff once we have the api
             items: [
                 {id: "1", description: "A random thought", location: "inbox"},
@@ -216,6 +235,29 @@
                 APIConn.itemToProject(id).then(res => {
                     this.items = this.items.filter(i => i.id !== id);
                     this.projects.push(res);
+                });
+            },
+            focusProject(id){
+                this.newGTDSubtask = "";
+                this.focusedProjectID = id;
+            },
+            noFocusProject(){
+                this.newGTDSubtask = "";
+                this.focusedProjectID = "";
+            },
+            addProjectSubtask(){
+                const projectID = this.focusedProjectID;
+                const subtask = this.newGTDSubtask;
+                if(subtask.length === 0)
+                    return;
+                APIConn.addProjectSubtask(projectID, subtask).then((res) => {
+                    this.noFocusProject();
+                    this.projects = this.projects.map((p) => {
+                        if(p.id !== projectID){
+                            return p
+                        }
+                        return Object.assign({}, p, {tasks: p.tasks.concat(res)});
+                    });
                 });
             }
         }
