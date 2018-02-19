@@ -48,6 +48,8 @@
             <ul id="items" v-if="mode === 0 || mode === 1">
                 <li v-for="item in items" v-if="item.location === modeStr.toLowerCase()">
                     {{ item.description }}
+                    <button class=tasks @click="itemToTask(item.id)">TT</button>
+                    <button class=project @click="itemToProject(item.id)">TP</button>
                     <button class=delete @click="deleteGTDThing(mode, item.id)">X</button>
                 </li>
             </ul>
@@ -61,7 +63,7 @@
             <!-- Project List -->
             <ul id="projects" v-if="mode === 3">
                 <li v-for="project in projects">
-                    task.description
+                    {{ project.description }}
                     <button class=delete @click="deleteGTDThing(mode, project.id)">X</button>
                     <ul class="project-tasks">
                         <li v-for="task in project.tasks">
@@ -96,7 +98,26 @@
                 resolve(true);
             });
         },
+        itemToTask(id){
+            return new Promise((resolve, reject) => {
+                resolve({
+                    id: Math.floor(Math.random() * 150),
+                    description: app.items.filter(i => i.id === id)[0].description,
+                    status: "todo"
+                });
+            });
+        },
+        itemToProject(id){
+            return new Promise((resolve, reject) => {
+                resolve({
+                    id: Math.floor(Math.random() * 150),
+                    description: app.items.filter(i => i.id === id)[0].description,
+                    tasks: []
+                });
+            });
+        }
     }
+
     const app = new Vue({
         el: '#app',
         data: {
@@ -162,6 +183,7 @@
                 }
             },
             deleteGTDThing(mode, id){
+                //TODO: Improve this code
                 const curr_mode = this.computeModeStr(mode);
                 const properties = ["items", "items", "tasks", "projects"];
                 APIConn.delete(curr_mode, id).then(res => {
@@ -182,6 +204,18 @@
                         }
                         this[properties[mode]] = filtered_list;
                     }
+                });
+            },
+            itemToTask(id){
+                APIConn.itemToTask(id).then(res => {
+                    this.items = this.items.filter(i => i.id !== id);
+                    this.tasks.push(res);
+                });
+            },
+            itemToProject(id){
+                APIConn.itemToProject(id).then(res => {
+                    this.items = this.items.filter(i => i.id !== id);
+                    this.projects.push(res);
                 });
             }
         }
