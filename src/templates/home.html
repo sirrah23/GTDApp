@@ -49,14 +49,14 @@
             grid-column-start: 1;
             grid-column-end: 3;
             display: grid;
-            grid-template-columns: 1fr 1fr;           
+            grid-template-columns: 1fr 1fr;
         }
 
         .content-list-item{
             grid-column-start: 1;
             grid-column-end: 3;
             display: grid;
-            grid-template-columns: 1fr 1fr;           
+            grid-template-columns: 1fr 1fr;
         }
 
         .content-list-item-column-1{
@@ -115,7 +115,8 @@
                         </div>
                         <div class="content-list-item-column-2">
                             {{ task.status.toUpperCase() }} 
-                            <button class=delete @click="deleteGTDThing(mode, task.id)">X</button>
+                            <button class="toggle" @click="toggleTaskStatus(mode, task)">Toggle</button>
+                            <button class="delete" @click="deleteGTDThing(mode, task.id)">X</button>
                         </div>
                     </li>
                 </ul>
@@ -138,6 +139,7 @@
                                     {{ task.description }} ---- {{ task.status.toUpperCase() }}
                                 </div>
                                 <div class="content-list-item-column-2">
+                                    <button class="toggle" @click="toggleTaskStatus(mode, task)">Toggle</button>
                                     <button class=delete @click="deleteGTDThing(mode, task.id)">X</button>
                                 </div>
                             </li>
@@ -206,7 +208,22 @@
                     status: "todo"
                 });
             });
-        }
+        },
+        toggleTaskStatus(task){
+            return new Promise((resolve, reject) => {
+                let newStatus;
+                if(task.status === "todo"){
+                    newStatus = "done";
+                } else {
+                    newStatus = "todo";
+                }
+                resolve({
+                    id: task.id,
+                    description: task.description,
+                    status: newStatus,
+                });
+            });
+        },
     }
 
     const app = new Vue({
@@ -332,6 +349,12 @@
                         }
                         return Object.assign({}, p, {tasks: p.tasks.concat(res)});
                     });
+                });
+            },
+            toggleTaskStatus(mode, task){
+                const properties = ["items", "items", "tasks", "projects"];
+                APIConn.toggleTaskStatus(task).then((updatedTask) => {
+                    task.status = updatedTask.status;
                 });
             }
         }
