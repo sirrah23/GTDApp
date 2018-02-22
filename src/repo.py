@@ -11,9 +11,9 @@ class GTDRepo:
         cls.connected = True
 
     @classmethod
-    def add_item(cls, description, location="inbox"):
+    def add_item(cls, description, user, location="inbox"):
         if cls.connected:
-            i = Item(description=description, location=location)
+            i = Item(description=description, location=location, user=user)
             i.save()
 
     @classmethod
@@ -24,11 +24,11 @@ class GTDRepo:
             return None
 
     @classmethod
-    def add_task(cls, description, status="todo"):
+    def add_task(cls, description, user, status="todo"):
         if cls.connected:
-            t = Task(description=description, status=status)
+            t = Task(description=description, status=status, user=user)
             t.save()
-    
+
     @classmethod
     def get_all_tasks(cls):
         if cls.connected:
@@ -37,11 +37,11 @@ class GTDRepo:
             return None
 
     @classmethod
-    def add_project(cls, description, tasks=[]):
+    def add_project(cls, description, user, tasks=[]):
         if cls.connected:
-            p = Project(description=description, tasks=tasks)
+            p = Project(description=description, tasks=tasks, user=user)
             p.save()
-    
+
     @classmethod
     def get_all_projects(cls):
         if cls.connected:
