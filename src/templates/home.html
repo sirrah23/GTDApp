@@ -10,12 +10,14 @@
             grid-template-rows: 35px auto;
         }
 
-        .header {
-            grid-column: 2 / 4;
+        #header {
+            grid-column: 2 / 3;
         }
 
-        .content {
-            grid-column: 2 / 4;
+        #content {
+            grid-column: 2 / 3;
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
         }
 
         #button-forward{
@@ -26,6 +28,47 @@
             justify-self: end;
         }
 
+        #content-header{
+            grid-column-start: 1;
+            grid-column-end: 2;
+        }
+
+        #logout{
+            grid-column-start: 1;
+            grid-column-end: 2;
+        }
+
+        .content-list-box{
+            grid-column-start: 1;
+            grid-column-end: 3;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .content-list{
+            grid-column-start: 1;
+            grid-column-end: 3;
+            display: grid;
+            grid-template-columns: 1fr 1fr;           
+        }
+
+        .content-list-item{
+            grid-column-start: 1;
+            grid-column-end: 3;
+            display: grid;
+            grid-template-columns: 1fr 1fr;           
+        }
+
+        .content-list-item-column-1{
+            grid-column-start: 1;
+            grid-column-end: 2;
+        }
+
+        .content-list-item-column-2{
+            grid-column-start: 2;
+            grid-column-end: 3;
+        }
+
     </style>
   </head>
   <body>
@@ -33,56 +76,87 @@
     <div class="container">
       <div id="app">
           <!-- TODO: Inline these buttons...flexbox? -->
-          <div class="header">
+          <div id="header">
             <span id="button-back"><button v-on:click="toggleModeBackward()"><<<</button></span>
             <span id="button-forward"><button v-on:click="toggleModeForward()">>>></button></span>
           </div>
-          <div class="content">
-            <input id="add_gtd_thing" 
-                :placeholder="`New ${modeStr.toLowerCase()} item`"
-                v-on:keyup.enter="addGTDThing()"
-                v-model="newGTDThing">
-            </input>
-            <span id="mode"> <h1>{{ modeStr }}</h1></span>
+          <div id="content">
+            <div id="input-box">
+                <input
+                    :placeholder="`New ${modeStr.toLowerCase()} item`"
+                    v-on:keyup.enter="addGTDThing()"
+                    v-model="newGTDThing">
+                </input>
+            </div>
+            <div id="content-header">
+                <span id="mode"> <h1>{{ modeStr }}</h1></span>
+            </div>
             <!-- Items or Someday/Maybe list -->
-            <ul id="items" v-if="mode === 0 || mode === 1">
-                <li v-for="item in items" v-if="item.location === modeStr.toLowerCase()">
-                    {{ item.description }}
-                    <button class=tasks @click="itemToTask(item.id)">TT</button>
-                    <button class=project @click="itemToProject(item.id)">TP</button>
-                    <button class=delete @click="deleteGTDThing(mode, item.id)">X</button>
-                </li>
-            </ul>
+            <div class="content-list-box">
+                <ul class="content-list" id="items" v-if="mode === 0 || mode === 1">
+                    <li class="content-list-item" v-for="item in items" v-if="item.location === modeStr.toLowerCase()">
+                        <div class="content-list-item-column-1">
+                            {{ item.description }}
+                        </div>
+                        <div class="content-list-item-column-2">
+                            <button class=tasks @click="itemToTask(item.id)">TT</button>
+                            <button class=project @click="itemToProject(item.id)">TP</button>
+                            <button class=delete @click="deleteGTDThing(mode, item.id)">X</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
             <!-- Task List -->
-            <ul id="tasks" v-if="mode === 2">
-                <li v-for="task in tasks">
-                    {{ task.description }} ---- {{ task.status.toUpperCase() }} 
-                    <button class=delete @click="deleteGTDThing(mode, task.id)">X</button>
-                </li>
-            </ul>
-            <!-- Project List -->
-            <ul id="projects" v-if="mode === 3" v-on:keyup.esc = "noFocusProject()">
-                <li v-for="project in projects">
-                    {{ project.description }}
-                    <button class="add" @click="focusProject(project.id)">+</button>
-                    <button class=delete @click="deleteGTDThing(mode, project.id)">X</button>
-                    <ul class="project-tasks">
-                        <li v-for="task in project.tasks">
-                            <!-- TODO: Task component? We could abstract it and use it in two places-->
-                            {{ task.description }} ---- {{ task.status.toUpperCase() }}
+            <div class="content-list-box">
+                <ul class="content-list" id="tasks" v-if="mode === 2">
+                    <li class="content-list-item" v-for="task in tasks">
+                        <div class="content-list-item-column-1">
+                            {{ task.description }}
+                        </div>
+                        <div class="content-list-item-column-2">
+                            {{ task.status.toUpperCase() }} 
                             <button class=delete @click="deleteGTDThing(mode, task.id)">X</button>
-                        </li>
-                        <li v-if="focusedProjectID === project.id">
-                            <input 
-                                v-model="newGTDSubtask"
-                                v-on:keyup.enter = "addProjectSubtask()"
-                            >
-                            </input>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-            <a href="/logout">Logout</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <!-- Project List -->
+            <div class="content-list-box">
+                <ul class="content-list" id="projects" v-if="mode === 3" v-on:keyup.esc = "noFocusProject()">
+                    <li class="content-list-item" v-for="project in projects">
+                        <div class="content-list-item-column-1">
+                            {{ project.description }}
+                        </div>
+                        <div class="content-list-item-column-2">
+                             <button class="add" @click="focusProject(project.id)">+</button>   
+                             <button class=delete @click="deleteGTDThing(mode, project.id)">X</button>
+                        </div>
+                        <ul class="content-list" id="project-tasks">
+                            <li class="content-list-item" v-for="task in project.tasks">
+                                <!-- TODO: Task component? We could abstract it and use it in two places-->
+                                <div class="content-list-item-column-1">
+                                    {{ task.description }} ---- {{ task.status.toUpperCase() }}
+                                </div>
+                                <div class="content-list-item-column-2">
+                                    <button class=delete @click="deleteGTDThing(mode, task.id)">X</button>
+                                </div>
+                            </li>
+                            <li class="content-list-item" v-if="focusedProjectID === project.id">
+                                <div class="content-list-item-column-1">
+                                    <input 
+                                        v-model="newGTDSubtask"
+                                        v-on:keyup.enter = "addProjectSubtask()"
+                                    >
+                                    </input>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div id="logout">
+                <a href="/logout">Logout</a>
+            </div>
         <div>
       </div>
     </div>
