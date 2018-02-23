@@ -168,13 +168,19 @@
     //NOTE: Temporary, stub API connection until we get a real one going
     const APIConn = {
         addNewItem(itemDescription){
-            return new Promise((resolve, reject) => {
-                resolve({
-                    id: Math.floor(Math.random() * 150),
-                    description: itemDescription,
-                    location: "inbox"
-                })
-            });
+            return fetch("/api/item", {
+                body: JSON.stringify({description: itemDescription}),
+                cache: "no-cache",
+                credentials: "same-origin",
+                headers: {
+                    "content-type": "application/json"
+                },
+                method: "POST",
+                mode: "cors",
+                redirect: "follow",
+                referrer: "no-referrer",
+            })
+            .then(res => res.json())
         },
         delete(mode, id){
             return new Promise((resolve, reject) => {
@@ -287,8 +293,10 @@
                 if(this.newGTDThing.length > 0){
                     APIConn.addNewItem(this.newGTDThing)
                     .then((res) => {
-                        this.newGTDThing = "";
-                        this.items.push(res);
+                        if(res.success){
+                            this.newGTDThing = "";
+                            this.items.push(res);
+                        }
                     })
                 }
             },

@@ -12,9 +12,15 @@ class GTDRepo:
 
     @classmethod
     def add_item(cls, description, user, location="inbox"):
-        if cls.connected:
-            i = Item(description=description, location=location, user=user)
-            i.save()
+        if not cls.connected:
+            return
+        i = Item(description=description, location=location, user=user)
+        i.save()
+        res = {}
+        res["id"] = i.id
+        res["description"] = description
+        res["location"] = location
+        return res
 
     @classmethod
     def get_all_items(cls):

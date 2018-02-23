@@ -1,7 +1,19 @@
+import json
 from flask import Flask, render_template, redirect, request, flash
 from wtforms import Form, BooleanField, StringField, PasswordField, validators
-from flask_login import LoginManager, login_user, login_required, UserMixin, logout_user
+from flask_login import LoginManager, login_user, login_required, UserMixin, logout_user, current_user
 from src.repo import GTDRepo
+
+
+app = Flask(__name__)
+app.secret_key = "myspookysecret"
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+GTDRepo.connect("gtd") # TODO: config
+
 
 class LoggedInUserWrapper(UserMixin):
 
@@ -13,12 +25,10 @@ class LoggedInUserWrapper(UserMixin):
             return None
         return str(self.u.id)
 
-
-login_manager = LoginManager()
-app = Flask(__name__)
-app.secret_key = "myspookysecret"
-login_manager.init_app(app)
-GTDRepo.connect("gtd") # TODO: config
+    def get_obj_id(self):
+        if not self.u:
+            return None
+        return self.u.id
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -49,7 +59,7 @@ class RegistrationForm(Form):
     confirm = PasswordField('Repeat Password')
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=["GET", "POST"])
 def register():
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -63,6 +73,20 @@ def register():
 @login_required
 def home():
     return render_template("home.html")
+
+@app.route("/api/item", methods=["POST"])
+@login_required
+def item_add():
+    uid = current_user.get_obj_id()
+    payload = request.get_json()
+    if "description" not in payload:
+        res = {"success": False}
+    else:
+        res = GTDRepo.add_item(payload["description"], uid)
+        res["id"] = str(res["id"])
+        res["success"] = True
+    return json.dumps(res)
+
 
 @app.route("/logout")
 @login_required
