@@ -18,9 +18,8 @@ def test_store_item(resource):
     GTDRepo.add_item(description="This is an item", location="inbox", user=user_id)
     items = GTDRepo.get_all_items()
     assert len(items) == 1
-    assert items[0].description == "This is an item"
-    assert items[0].location == "inbox"
-    assert items[0].user.id == user_id
+    assert items[0]["description"] == "This is an item"
+    assert items[0]["location"] == "inbox"
 
 def test_store_task(resource):
     user_id = resource

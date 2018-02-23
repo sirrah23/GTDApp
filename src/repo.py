@@ -11,23 +11,33 @@ class GTDRepo:
         cls.connected = True
 
     @classmethod
-    def add_item(cls, description, user, location="inbox"):
+    def add_item(cls, description, user, location="inbox", str_id=False):
         if not cls.connected:
             return
         i = Item(description=description, location=location, user=user)
         i.save()
         res = {}
-        res["id"] = i.id
+        res["id"] = i.id if not str_id else str(i.id)
         res["description"] = description
         res["location"] = location
         return res
 
     @classmethod
-    def get_all_items(cls):
-        if cls.connected:
-            return list(Item.objects())
-        else:
+    def get_all_items(cls, user=None, str_id=False):
+        if not cls.connected:
             return None
+        if not user:
+            items = Item.objects()
+        else:
+            items = Item.objects(user=user)
+        res = []
+        for item in items:
+            res.append({
+                "id": item.id if not str_id else str(item.id),
+                "description": item.description,
+                "location": item.location
+            })
+        return res
 
     @classmethod
     def add_task(cls, description, user, status="todo"):
