@@ -2,7 +2,7 @@ import json
 from flask import Flask, render_template, redirect, request, flash
 from wtforms import Form, BooleanField, StringField, PasswordField, validators
 from flask_login import LoginManager, login_user, login_required, UserMixin, logout_user, current_user
-from src.repo import GTDRepo
+from GTDApp.repo import GTDRepo
 
 
 app = Flask(__name__)
