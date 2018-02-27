@@ -82,9 +82,13 @@ def item_add():
     if "description" not in payload:
         res = {"success": False}
     else:
-        res = GTDRepo.add_item(payload["description"], uid, str_id=True)
-        res["id"] = str(res["id"])
-        res["success"] = True
+        res = {}
+        added_item = GTDRepo.add_item(payload["description"], uid, str_id=True)
+        if added_item:
+            res["success"] = True
+            res["data"] = added_item
+        else:
+            res["success"] = False
     return json.dumps(res)
 
 @app.route("/api/item", methods=["GET"])
@@ -96,6 +100,24 @@ def item_get():
     res["success"] = True
     res["data"] = user_items
     return json.dumps(res)
+
+@app.route("/api/task", methods=["POST"])
+@login_required
+def task_add():
+    uid = current_user.get_obj_id()
+    payload = request.get_json()
+    if "description" not in payload:
+        res = {"success": False}
+    else:
+        res = {}
+        added_task = GTDRepo.add_task(payload["description"], uid, str_id=True)
+        if added_task:
+            res["success"] = True
+            res["data"] = added_task
+        else:
+            res["success"] = False
+    return json.dumps(res)
+
 
 @app.route("/api/task", methods=["GET"])
 @login_required

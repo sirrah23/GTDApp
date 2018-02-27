@@ -12,8 +12,25 @@ const APIConn = {
             mode: "cors",
             redirect: "follow",
             referrer: "no-referrer",
-        })
-        .then(res => res.json());
+        }).then(res => res.json());
+    },
+    addNewTask(taskDescription){
+        return fetch("/api/task", {
+            body: JSON.stringify({description: taskDescription}),
+            cache: "no-cache",
+            credentials: "same-origin",
+            headers: {
+                "content-type": "application/json"
+            },
+            method: "POST",
+            mode: "cors",
+            redirect: "follow",
+            referrer: "no-referrer",
+        }).then(res => res.json());
+    },
+    addNewProject(projectDescription){
+        //TODO
+        return;
     },
     delete(mode, id){
         return new Promise((resolve, reject) => {
@@ -71,8 +88,17 @@ const APIConn = {
             mode: "cors",
             redirect: "follow",
             referrer: "no-referrer",
-        })
-        .then(res => res.json())
+        }).then(res => res.json());
+    },
+    getAllTasks(){
+        return fetch("/api/task", {
+            cache: "no-cache",
+            credentials: "same-origin",
+            method: "GET",
+            mode: "cors",
+            redirect: "follow",
+            referrer: "no-referrer",
+        }).then(res => res.json());
     }
 };
 
@@ -86,11 +112,7 @@ const app = new Vue({
         focusedProjectID: "",
         // TODO: Unhardcode this stuff once we have the api
         items: [],
-        tasks: [
-            {id: "6", description: "Task 1", status: "todo"},
-            {id: "7", description: "Task 2", status: "todo"},
-            {id: "8", description: "Task 3", status: "done"},
-        ],
+        tasks: [],
         projects: [
             {id: "9", description: "Project A", tasks:[]},
             {id: "10",
@@ -108,10 +130,19 @@ const app = new Vue({
         ]
     },
     mounted: function(){
+        //TODO: Promise.all or async/await this thing
         APIConn.getAllItems()
             .then(res => {
                 if(res.success){
                     this.items = res.data;
+                }
+            })
+            .then(() => {
+                return APIConn.getAllTasks();
+            })
+            .then(res => {
+                if(res.success){
+                    this.tasks = res.data;
                 }
             });
     },
@@ -136,15 +167,31 @@ const app = new Vue({
             return this.modeStrs[mode_compute];
         },
         addGTDThing(){
-            if(this.newGTDThing.length > 0){
-                APIConn.addNewItem(this.newGTDThing)
+            const mode = this.mode;
+            let APIFunc, listType;
+            switch (this.mode){
+            case 0, 1:
+                APIFunc = APIConn.addNewItem;
+                listType = "items";
+                break;
+            case 2:
+                APIFunc = APIConn.addNewTask;
+                listType = "tasks";
+                break;
+            case 3:
+                APIFunc = APIConn.addNewProject;
+                listType = "projects";
+                break;
+            }
+            if(this.newGTDThing.length <= 0)
+                return;
+            APIFunc(this.newGTDThing)
                 .then((res) => {
                     if(res.success){
                         this.newGTDThing = "";
-                        this.items.push(res);
+                        this[listType].push(res.data);
                     }
                 });
-            }
         },
         deleteGTDThing(mode, id){
             //TODO: Improve this code
