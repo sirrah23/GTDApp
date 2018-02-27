@@ -40,17 +40,34 @@ class GTDRepo:
         return res
 
     @classmethod
-    def add_task(cls, description, user, status="todo"):
-        if cls.connected:
-            t = Task(description=description, status=status, user=user)
-            t.save()
+    def add_task(cls, description, user, status="todo", str_id=False):
+        if not cls.connected:
+            return
+        t = Task(description=description, user=user, status=status)
+        t.save()
+        res = {}
+        res["id"] = t.id if not str_id else str(t.id)
+        res["description"] = description
+        res["status"] = status
+        return res
 
     @classmethod
-    def get_all_tasks(cls):
-        if cls.connected:
-            return list(Task.objects())
-        else:
+    def get_all_tasks(cls, user=None, str_id=False):
+        if not cls.connected:
             return None
+        if not user:
+            tasks = Task.objects()
+        else:
+            tasks = Task.objects(user=user)
+        res = []
+        for task in tasks:
+            res.append({
+                "id": task.id if not str_id else str(task.id),
+                "description": task.description,
+                "status": task.status
+            })
+        return res
+
 
     @classmethod
     def add_project(cls, description, user, tasks=[]):

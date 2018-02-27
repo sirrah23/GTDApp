@@ -26,15 +26,14 @@ def test_store_task(resource):
     GTDRepo.add_task(description="This is a task", user=user_id)
     tasks = GTDRepo.get_all_tasks()
     assert len(tasks) == 1
-    assert tasks[0].description == "This is a task"
-    assert tasks[0].status == "todo"
-    assert tasks[0].user.id == user_id
+    assert tasks[0]["description"] == "This is a task"
+    assert tasks[0]["status"] == "todo"
 
 def test_store_project(resource):
     user_id = resource
     GTDRepo.add_task(description="Task1", user=user_id)
     GTDRepo.add_task(description="Task2", user=user_id)
-    tasks = list(map(lambda t: t.id, GTDRepo.get_all_tasks()))
+    tasks = list(map(lambda t: t["id"], GTDRepo.get_all_tasks()))
     GTDRepo.add_project(description="ProjectA",  tasks=tasks, user=user_id)
     projects = GTDRepo.get_all_projects()
     assert len(projects) == 1

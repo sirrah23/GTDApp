@@ -97,6 +97,16 @@ def item_get():
     res["data"] = user_items
     return json.dumps(res)
 
+@app.route("/api/task", methods=["GET"])
+@login_required
+def task_get():
+    uid = current_user.get_obj_id()
+    user_tasks = GTDRepo.get_all_tasks(user=uid, str_id=True)
+    res = {}
+    res["success"] = True
+    res["data"] = user_tasks
+    return json.dumps(res)
+
 @app.route("/logout")
 @login_required
 def logout():
