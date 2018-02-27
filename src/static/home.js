@@ -1,22 +1,18 @@
 //NOTE: Temporary, stub API connection until we get a real one going
-const APIConn = {
-    addNewItem(itemDescription){
-        return fetch("/api/item", {
-            body: JSON.stringify({description: itemDescription}),
+const APIUtil = {
+    get(url){
+        return fetch(url, {
             cache: "no-cache",
             credentials: "same-origin",
-            headers: {
-                "content-type": "application/json"
-            },
-            method: "POST",
+            method: "GET",
             mode: "cors",
             redirect: "follow",
-            referrer: "no-referrer",
+            referrer: "no-referrer"
         }).then(res => res.json());
     },
-    addNewTask(taskDescription){
-        return fetch("/api/task", {
-            body: JSON.stringify({description: taskDescription}),
+    post(url, data){
+        return fetch(url, {
+            body: JSON.stringify(data),
             cache: "no-cache",
             credentials: "same-origin",
             headers: {
@@ -25,8 +21,17 @@ const APIConn = {
             method: "POST",
             mode: "cors",
             redirect: "follow",
-            referrer: "no-referrer",
+            referrer: "no-referrer"
         }).then(res => res.json());
+    }
+};
+
+const APIConn = {
+    addNewItem(itemDescription){
+        return APIUtil.post("/api/item", {description: itemDescription});
+    },
+    addNewTask(taskDescription){
+        return APIUtil.post("/api/task", {description: taskDescription});
     },
     addNewProject(projectDescription){
         //TODO
@@ -76,29 +81,15 @@ const APIConn = {
             resolve({
                 id: task.id,
                 description: task.description,
-                status: newStatus,
+                status: newStatus
             });
         });
     },
     getAllItems(){
-        return fetch("/api/item", {
-            cache: "no-cache",
-            credentials: "same-origin",
-            method: "GET",
-            mode: "cors",
-            redirect: "follow",
-            referrer: "no-referrer",
-        }).then(res => res.json());
+        return APIUtil.get("/api/item");
     },
     getAllTasks(){
-        return fetch("/api/task", {
-            cache: "no-cache",
-            credentials: "same-origin",
-            method: "GET",
-            mode: "cors",
-            redirect: "follow",
-            referrer: "no-referrer",
-        }).then(res => res.json());
+        return APIUtil.get("/api/task");
     }
 };
 
@@ -169,19 +160,20 @@ const app = new Vue({
         addGTDThing(){
             const mode = this.mode;
             let APIFunc, listType;
-            switch (this.mode){
-            case 0, 1:
-                APIFunc = APIConn.addNewItem;
-                listType = "items";
-                break;
-            case 2:
-                APIFunc = APIConn.addNewTask;
-                listType = "tasks";
-                break;
-            case 3:
-                APIFunc = APIConn.addNewProject;
-                listType = "projects";
-                break;
+            switch (mode){
+                case 0:
+                case 1:
+                    APIFunc = APIConn.addNewItem;
+                    listType = "items";
+                    break;
+                case 2:
+                    APIFunc = APIConn.addNewTask;
+                    listType = "tasks";
+                    break;
+                case 3:
+                    APIFunc = APIConn.addNewProject;
+                    listType = "projects";
+                    break;
             }
             if(this.newGTDThing.length <= 0)
                 return;
