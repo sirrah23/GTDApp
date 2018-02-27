@@ -1,12 +1,11 @@
-import json
-from flask import Flask, render_template, redirect, request, flash
-from wtforms import Form, BooleanField, StringField, PasswordField, validators
+from flask import Flask, request, render_template, redirect
 from flask_login import LoginManager, login_user, login_required, UserMixin, logout_user, current_user
 from GTDApp.repo import GTDRepo
 
 
 app = Flask(__name__)
 app.secret_key = "myspookysecret"
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -30,9 +29,11 @@ class LoggedInUserWrapper(UserMixin):
             return None
         return self.u.id
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return LoggedInUserWrapper(GTDRepo.get_user_by_id(user_id))
+
 
 # Route for handling the login page logic
 @app.route("/", methods=["GET", "POST"])
@@ -49,88 +50,6 @@ def login():
     return render_template("login.html", error=error)
 
 
-class RegistrationForm(Form):
-    username = StringField('Username', [validators.Length(min=4, max=25)])
-    email = StringField('Email Address', [validators.Length(min=6, max=35)])
-    password = PasswordField('New Password', [
-        validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords must match')
-    ])
-    confirm = PasswordField('Repeat Password')
-
-
-@app.route('/register', methods=["GET", "POST"])
-def register():
-    form = RegistrationForm(request.form)
-    if request.method == 'POST' and form.validate():
-        print(form.username.data, form.email.data,
-                    form.password.data)
-        flash('Thanks for registering')
-        return redirect('/home')
-    return render_template('register.html', form=form)
-
-@app.route("/home")
-@login_required
-def home():
-    return render_template("home.html")
-
-@app.route("/api/item", methods=["POST"])
-@login_required
-def item_add():
-    uid = current_user.get_obj_id()
-    payload = request.get_json()
-    if "description" not in payload:
-        res = {"success": False}
-    else:
-        res = {}
-        added_item = GTDRepo.add_item(payload["description"], uid, str_id=True)
-        if added_item:
-            res["success"] = True
-            res["data"] = added_item
-        else:
-            res["success"] = False
-    return json.dumps(res)
-
-@app.route("/api/item", methods=["GET"])
-@login_required
-def item_get():
-    uid = current_user.get_obj_id()
-    user_items = GTDRepo.get_all_items(user=uid, str_id=True)
-    res = {}
-    res["success"] = True
-    res["data"] = user_items
-    return json.dumps(res)
-
-@app.route("/api/task", methods=["POST"])
-@login_required
-def task_add():
-    uid = current_user.get_obj_id()
-    payload = request.get_json()
-    if "description" not in payload:
-        res = {"success": False}
-    else:
-        res = {}
-        added_task = GTDRepo.add_task(payload["description"], uid, str_id=True)
-        if added_task:
-            res["success"] = True
-            res["data"] = added_task
-        else:
-            res["success"] = False
-    return json.dumps(res)
-
-
-@app.route("/api/task", methods=["GET"])
-@login_required
-def task_get():
-    uid = current_user.get_obj_id()
-    user_tasks = GTDRepo.get_all_tasks(user=uid, str_id=True)
-    res = {}
-    res["success"] = True
-    res["data"] = user_tasks
-    return json.dumps(res)
-
-@app.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    return redirect("/")
+from GTDApp.views import index
+from GTDApp.views import task
+from GTDApp.views import item
