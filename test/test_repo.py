@@ -1,17 +1,14 @@
-from src.repo import GTDRepo
+from GTDApp.repo import GTDRepo
 from utils import drop_db, random_objectid
 import pytest
 
-DBNAME = "gtd_test"
-
-GTDRepo.connect(DBNAME)
 
 @pytest.fixture
 def resource():
     GTDRepo.add_user(username="user1", password="mypass", email="user@gtd.com")
     user_id = GTDRepo.get_all_users()[0].id
     yield user_id
-    drop_db(DBNAME)
+    drop_db("gtd_test") #TODO: Read from config?
 
 def test_store_item(resource):
     user_id = resource
