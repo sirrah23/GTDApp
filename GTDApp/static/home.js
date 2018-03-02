@@ -38,10 +38,8 @@ const APIConn = {
         return;
     },
     delete(mode, id){
-        return new Promise((resolve, reject) => {
-            console.log(`Deleting mode: ${mode}, id: ${id}`);
-            resolve(true);
-        });
+        const url = `/api/${mode}/delete/${id}`;
+        return APIUtil.post(url, {id: id});
     },
     itemToTask(id){
         return new Promise((resolve, reject) => {
@@ -187,10 +185,10 @@ const app = new Vue({
         },
         deleteGTDThing(mode, id){
             //TODO: Improve this code
-            const curr_mode = this.computeModeStr(mode);
             const properties = ["items", "items", "tasks", "projects"];
-            APIConn.delete(curr_mode, id).then(res => {
-                if(res){
+            const api_call = ["item", "item", "task", "project"];
+            APIConn.delete(api_call[mode], id).then(res => {
+                if(res.success){
                     const filtered_list = [];
                     for(let i = 0; i < this[properties[mode]].length; i++){
                         let filtered_item = Object.assign({}, this[properties[mode]][i]);

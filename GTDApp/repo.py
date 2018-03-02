@@ -1,3 +1,4 @@
+from bson import ObjectId
 from .schema import database_setup, Item, Task, Project, User
 
 
@@ -21,6 +22,18 @@ class GTDRepo:
         res["description"] = description
         res["location"] = location
         return res
+
+    @classmethod
+    def delete_item(cls, item_id):
+        if not cls.connected:
+            return False
+        if not ObjectId.is_valid(item_id):
+            return False
+        item = Item.objects(id=item_id)
+        if len(item) != 1:
+            return False
+        item.delete()
+        return True
 
     @classmethod
     def get_all_items(cls, user=None, str_id=False):

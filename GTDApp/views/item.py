@@ -32,3 +32,11 @@ def item_get():
     res["success"] = True
     res["data"] = user_items
     return json.dumps(res)
+
+
+@app.route("/api/item/delete/<item_id>", methods=["POST"])
+@login_required
+def item_delete(item_id):
+    delete_res = GTDRepo.delete_item(item_id)
+    return json.dumps({"success": delete_res})
+

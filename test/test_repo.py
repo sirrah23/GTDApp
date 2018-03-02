@@ -18,6 +18,33 @@ def test_store_item(resource):
     assert items[0]["description"] == "This is an item"
     assert items[0]["location"] == "inbox"
 
+def test_delete_item(resource):
+    user_id = resource
+    GTDRepo.add_item(description="This is an item", location="inbox", user=user_id)
+    items = GTDRepo.get_all_items()
+    assert len(items) == 1
+    item_id = str(items[0]["id"])
+    assert GTDRepo.delete_item(item_id) == True
+    items = GTDRepo.get_all_items()
+    assert len(items) == 0
+
+def test_delete_two_item(resource):
+    user_id = resource
+    GTDRepo.add_item(description="This is an item", location="inbox", user=user_id)
+    GTDRepo.add_item(description="This is another item", location="inbox", user=user_id)
+    items = GTDRepo.get_all_items()
+    assert len(items) == 2
+    item_id_1 = str(items[0]["id"])
+    item_id_2 = str(items[1]["id"])
+    assert GTDRepo.delete_item(item_id_1) == True
+    assert len(GTDRepo.get_all_items()) == 1
+    assert GTDRepo.delete_item(item_id_2) == True
+    assert len(GTDRepo.get_all_items()) == 0
+
+def test_delete_nonexistent(resource):
+    user_id = resource
+    assert GTDRepo.delete_item("thisisafakeid") == False
+
 def test_store_task(resource):
     user_id = resource
     GTDRepo.add_task(description="This is a task", user=user_id)
