@@ -32,3 +32,17 @@ def task_get():
     res["success"] = True
     res["data"] = user_tasks
     return json.dumps(res)
+
+
+@app.route("/api/task/update/<task_id>", methods=["POST"])
+@login_required
+def task_update(task_id):
+    res = GTDRepo.toggle_task(task_id)
+    if not res:
+        return json.dumps({"success": False})
+    task = GTDRepo.get_task(task_id)
+    if task:
+        return json.dumps({"success": True, "data": task})
+    else:
+        return json.dumps({"success": True})
+

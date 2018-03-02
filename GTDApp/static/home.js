@@ -69,18 +69,16 @@ const APIConn = {
         });
     },
     toggleTaskStatus(task){
-        return new Promise((resolve, reject) => {
-            let newStatus;
-            if(task.status === "todo"){
-                newStatus = "done";
-            } else {
-                newStatus = "todo";
+        const url = `/api/task/update/${task.id}`;
+        APIUtil.post(url, {id: task.id}).then(res => {
+            if(res.success){
+                if(task.status === "todo"){
+                    task.status = "done";
+                } else {
+                    task.status = "todo";
+                }
             }
-            resolve({
-                id: task.id,
-                description: task.description,
-                status: newStatus
-            });
+            return res.data;
         });
     },
     getAllItems(){
@@ -244,9 +242,7 @@ const app = new Vue({
         },
         toggleTaskStatus(mode, task){
             const properties = ["items", "items", "tasks", "projects"];
-            APIConn.toggleTaskStatus(task).then((updatedTask) => {
-                task.status = updatedTask.status;
-            });
+            APIConn.toggleTaskStatus(task);
         }
     }
 });

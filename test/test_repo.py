@@ -53,6 +53,32 @@ def test_store_task(resource):
     assert tasks[0]["description"] == "This is a task"
     assert tasks[0]["status"] == "todo"
 
+def test_toggle_task_todo_to_done(resource):
+    user_id = resource
+    GTDRepo.add_task(description="This is a task", user=user_id)
+    tasks = GTDRepo.get_all_tasks()
+    assert len(tasks) == 1
+    assert tasks[0]["description"] == "This is a task"
+    assert tasks[0]["status"] == "todo"
+    assert GTDRepo.toggle_task(str(tasks[0]["id"])) == True
+    tasks = GTDRepo.get_all_tasks()
+    assert len(tasks) == 1
+    assert tasks[0]["description"] == "This is a task"
+    assert tasks[0]["status"] == "done"
+
+def test_toggle_task_done_to_todo(resource):
+    user_id = resource
+    GTDRepo.add_task(description="This is a task", user=user_id, status="done")
+    tasks = GTDRepo.get_all_tasks()
+    assert len(tasks) == 1
+    assert tasks[0]["description"] == "This is a task"
+    assert tasks[0]["status"] == "done"
+    assert GTDRepo.toggle_task(str(tasks[0]["id"])) == True
+    tasks = GTDRepo.get_all_tasks()
+    assert len(tasks) == 1
+    assert tasks[0]["description"] == "This is a task"
+    assert tasks[0]["status"] == "todo"
+
 def test_store_project(resource):
     user_id = resource
     GTDRepo.add_task(description="Task1", user=user_id)

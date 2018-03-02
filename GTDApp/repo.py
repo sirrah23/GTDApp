@@ -65,6 +65,20 @@ class GTDRepo:
         return res
 
     @classmethod
+    def get_task(cls, task_id, user=None):
+        if not cls.connected:
+            return None
+        if not ObjectId.is_valid(task_id):
+            return None
+        if not user:
+            task = Task.objects(id=task_id).first()
+        else:
+            task = Task.objects(user=user, id=task_id).first()
+        return ({"id": str(task.id),
+                "description": task.description,
+                "status": task.status})
+
+    @classmethod
     def get_all_tasks(cls, user=None, str_id=False):
         if not cls.connected:
             return None
@@ -81,6 +95,20 @@ class GTDRepo:
             })
         return res
 
+    @classmethod
+    def toggle_task(cls, task_id):
+        if not cls.connected:
+            return None
+        if not ObjectId.is_valid(task_id):
+            return False
+        task = Task.objects(id=task_id).first()
+        # TODO: Is there a way to stuff this logic into the Task object itself?
+        if task.status == "todo":
+            task.status = "done"
+        else:
+            task.status = "todo"
+        task.save()
+        return True
 
     @classmethod
     def add_project(cls, description, user, tasks=[]):
