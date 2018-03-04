@@ -34,8 +34,7 @@ const APIConn = {
         return APIUtil.post("/api/task", {description: taskDescription});
     },
     addNewProject(projectDescription){
-        //TODO
-        return;
+        return APIUtil.post("/api/project", {description: projectDescription});
     },
     delete(mode, id){
         const url = `/api/${mode}/delete/${id}`;

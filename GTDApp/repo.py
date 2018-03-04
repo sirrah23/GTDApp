@@ -79,7 +79,7 @@ class GTDRepo:
                 "status": task.status})
 
     @classmethod
-    def get_all_tasks(cls, user=None, str_id=False):
+    def get_all_tasks(cls, user=None):
         if not cls.connected:
             return None
         if not user:
@@ -89,7 +89,7 @@ class GTDRepo:
         res = []
         for task in tasks:
             res.append({
-                "id": task.id if not str_id else str(task.id),
+                "id": str(task.id),
                 "description": task.description,
                 "status": task.status
             })
@@ -112,9 +112,17 @@ class GTDRepo:
 
     @classmethod
     def add_project(cls, description, user, tasks=[]):
-        if cls.connected:
-            p = Project(description=description, tasks=tasks, user=user)
-            p.save()
+        if not cls.connected:
+            return
+        p = Project(description=description, tasks=tasks, user=user)
+        p.save()
+        res = {}
+        res["id"] = str(p.id)
+        res["description"] = p.description
+        res["tasks"] = [{"id": str(task.id),
+                         "description": task.description,
+                         "status": task.status} for task in p.tasks] #TODO: Duplicated code
+        return res
 
     @classmethod
     def get_all_projects(cls, user=None):

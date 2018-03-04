@@ -27,7 +27,7 @@ def task_add():
 @login_required
 def task_get():
     uid = current_user.get_obj_id()
-    user_tasks = GTDRepo.get_all_tasks(user=uid, str_id=True)
+    user_tasks = GTDRepo.get_all_tasks(user=uid)
     res = {}
     res["success"] = True
     res["data"] = user_tasks
