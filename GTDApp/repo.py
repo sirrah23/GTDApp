@@ -174,3 +174,20 @@ class GTDRepo:
                 return res.first()
             else:
                 return None
+
+    @classmethod
+    def delete_project(cls, project_id):
+        if not cls.connected:
+            return False
+        if not ObjectId.is_valid(project_id):
+            return False
+        project = Project.objects(id=project_id).first()
+        if not project:
+            return False
+        project_tasks = project.tasks
+        # Delete the project
+        project.delete()
+        # Delete all sub-tasks under the project
+        for project_task in project_tasks:
+            project_task.delete()
+        return True

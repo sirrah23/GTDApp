@@ -36,3 +36,10 @@ def project_get():
         res["success"] = False
         res["data"] = {}
     return json.dumps(res)
+
+
+@app.route("/api/project/delete/<project_id>", methods=["POST"])
+@login_required
+def project_delete(project_id):
+    delete_res = GTDRepo.delete_project(project_id)
+    return json.dumps({"success": delete_res})
