@@ -53,10 +53,10 @@ class GTDRepo:
         return res
 
     @classmethod
-    def add_task(cls, description, user, status="todo", str_id=False):
+    def add_task(cls, description, user, status="todo", project=False, str_id=False):
         if not cls.connected:
             return
-        t = Task(description=description, user=user, status=status)
+        t = Task(description=description, user=user, status=status, is_project_task=project)
         t.save()
         res = {}
         res["id"] = t.id if not str_id else str(t.id)
@@ -79,13 +79,13 @@ class GTDRepo:
                 "status": task.status})
 
     @classmethod
-    def get_all_tasks(cls, user=None):
+    def get_all_tasks(cls, project= False, user=None):
         if not cls.connected:
             return None
         if not user:
-            tasks = Task.objects()
+            tasks = Task.objects(is_project_task=project)
         else:
-            tasks = Task.objects(user=user)
+            tasks = Task.objects(is_project_task=project, user=user)
         res = []
         for task in tasks:
             res.append({
@@ -184,16 +184,10 @@ class GTDRepo:
         p = Project.objects(id=project_id, user=user_id).first()
         if not p:
             return
-        # TODO: Move this somewhere else
-        t = Task(description=description, user=user_id, is_project_task = True, status="todo")
-        t.save()
-        p.tasks.append(t)
+        t = GTDRepo.add_task(description, user_id, project=True, str_id=True)
+        p.tasks.append(ObjectId(t["id"]))
         p.save()
-        return {
-            "id": str(t.id),
-            "description": t.description,
-            "status": t.status
-        }
+        return t
 
 
     @classmethod
