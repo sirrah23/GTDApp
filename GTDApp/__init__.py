@@ -24,5 +24,6 @@ GTDRepo.connect(app.config["DBNAME"])
 
 
 from GTDApp.views import index
-from GTDApp.views import task
 from GTDApp.views import item
+from GTDApp.views import task
+from GTDApp.views import project

@@ -117,11 +117,24 @@ class GTDRepo:
             p.save()
 
     @classmethod
-    def get_all_projects(cls):
-        if cls.connected:
-            return list(Project.objects())
-        else:
+    def get_all_projects(cls, user=None):
+        if not cls.connected:
             return None
+        if not user:
+            projects = Project.objects()
+        else:
+            projects = Project.objects(user=user)
+        res = []
+        for project in projects:
+            res.append({
+                "id": str(project.id),
+                "description": project.description,
+                "tasks": [{"id": str(task.id),
+                           "description": task.description,
+                           "status": task.status}
+                          for task in project.tasks]
+            })
+        return res
 
     @classmethod
     def add_user(cls, username, password, email):

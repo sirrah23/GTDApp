@@ -87,8 +87,7 @@ def test_store_project(resource):
     GTDRepo.add_project(description="ProjectA",  tasks=tasks, user=user_id)
     projects = GTDRepo.get_all_projects()
     assert len(projects) == 1
-    assert projects[0].description == "ProjectA"
-    assert len(projects[0].tasks) == 2
-    assert projects[0].tasks[0].id in tasks
-    assert projects[0].tasks[1].id in tasks
-    assert projects[0].user.id == user_id
+    assert projects[0]["description"] == "ProjectA"
+    assert len(projects[0]["tasks"]) == 2
+    assert projects[0]["tasks"][0]["id"] in tasks
+    assert projects[0]["tasks"][1]["id"] in tasks

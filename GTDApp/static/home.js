@@ -86,6 +86,9 @@ const APIConn = {
     },
     getAllTasks(){
         return APIUtil.get("/api/task");
+    },
+    getAllProjects(){
+        return APIUtil.get("/api/project");
     }
 };
 
@@ -97,24 +100,9 @@ const app = new Vue({
         newGTDThing: "", //TODO: Make this less generic `thing`
         newGTDSubtask: "",
         focusedProjectID: "",
-        // TODO: Unhardcode this stuff once we have the api
         items: [],
         tasks: [],
-        projects: [
-            {id: "9", description: "Project A", tasks:[]},
-            {id: "10",
-                description: "Project B",
-                tasks:[
-                    {id: "12", description: "Project A Task 1", status: "next"},
-                    {id: "13", description: "Project A Task 2", status: "todo"},
-                ]
-            },
-            {id: "11", description: "Project C",
-                tasks:[
-                    {id: "14", description: "Project C Task 1", status: "todo"},
-                ]
-            },
-        ]
+        projects: []
     },
     mounted: function(){
         //TODO: Promise.all or async/await this thing
@@ -130,6 +118,14 @@ const app = new Vue({
             .then(res => {
                 if(res.success){
                     this.tasks = res.data;
+                }
+            })
+            .then(() => {
+                return APIConn.getAllProjects();
+            })
+            .then((res) => {
+                if(res.success){
+                    this.projects = res.data;
                 }
             });
     },
