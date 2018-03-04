@@ -1,4 +1,4 @@
-from mongoengine import connect, Document, StringField, ListField, ReferenceField
+from mongoengine import connect, Document, StringField, ListField, ReferenceField, BooleanField
 
 def database_setup(db_name):
     connect(db_name)
@@ -19,6 +19,7 @@ class Item(Document):
 class Task(Document):
     description = StringField(required=True)
     status = StringField(required=True)
+    is_project_task = BooleanField(required=True, default=False)
     user = ReferenceField(User, required=True)
 
 

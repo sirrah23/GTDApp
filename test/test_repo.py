@@ -91,3 +91,13 @@ def test_store_project(resource):
     assert len(projects[0]["tasks"]) == 2
     assert projects[0]["tasks"][0]["id"] in tasks
     assert projects[0]["tasks"][1]["id"] in tasks
+
+def test_store_project_task(resource):
+    user_id = resource
+    added_proj_one = GTDRepo.add_project(description="ProjectA", user=user_id, tasks=[])
+    assert len(added_proj_one["tasks"]) == 0
+    added_subtask = GTDRepo.add_project_task(added_proj_one["id"], "ProjectASubtask", user_id)
+    added_proj_two = GTDRepo.get_all_projects()[0]
+    assert len(added_proj_two["tasks"]) == 1
+    assert added_proj_one["id"] == added_proj_two["id"]
+    assert added_subtask["id"] in map(lambda t: t["id"], added_proj_two["tasks"])

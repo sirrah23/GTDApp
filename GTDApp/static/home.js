@@ -59,13 +59,9 @@ const APIConn = {
         });
     },
     addProjectSubtask(pid, description){
-        return new Promise((resolve, reject) => {
-            resolve({
-                id: Math.floor(Math.random() * 150),
-                description,
-                status: "todo"
-            });
-        });
+        const url = `/api/project/${pid}/task`;
+        const payload = {"description": description};
+        return APIUtil.post(url, payload);
     },
     toggleTaskStatus(task){
         const url = `/api/task/update/${task.id}`;
@@ -136,7 +132,7 @@ const app = new Vue({
     methods: {
         //TODO: Create a generic number-wrap function for both toggle-forward and toggle-backward
         toggleModeForward(){
-            this.mode = (this.mode + 1) % this.modeStrs.length; 
+            this.mode = (this.mode + 1) % this.modeStrs.length;
         },
         toggleModeBackward(){
             this.mode = (this.mode - 1);
@@ -226,12 +222,14 @@ const app = new Vue({
             if(subtask.length === 0)
                 return;
             APIConn.addProjectSubtask(projectID, subtask).then((res) => {
+                if(!res)
+                    return;
                 this.noFocusProject();
                 this.projects = this.projects.map((p) => {
                     if(p.id !== projectID){
                         return p;
                     }
-                    return Object.assign({}, p, {tasks: p.tasks.concat(res)});
+                    return Object.assign({}, p, {tasks: p.tasks.concat(res.data)});
                 });
             });
         },

@@ -23,6 +23,24 @@ def project_add():
         return json.dumps(res)
 
 
+@app.route("/api/project/<project_id>/task", methods=["POST"])
+@login_required
+def project_task_add(project_id):
+    uid = current_user.get_obj_id()
+    payload = request.get_json()
+    if "description" not in payload:
+        res = {"success": False}
+    else:
+        res = {}
+        added_task = GTDRepo.add_project_task(project_id, payload["description"], uid)
+        if added_task:
+            res["success"] = True
+            res["data"] = added_task
+        else:
+            res["success"] = False
+    return json.dumps(res)
+
+
 @app.route("/api/project", methods=["GET"])
 @login_required
 def project_get():
