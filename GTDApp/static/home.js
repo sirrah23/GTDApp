@@ -63,6 +63,10 @@ const APIConn = {
         const payload = {"description": description};
         return APIUtil.post(url, payload);
     },
+    deleteProjectSubtask(pid, tid){
+        const url = `/api/project/${pid}/task/${tid}`;
+        return APIUtil.post(url, {});
+    },
     toggleTaskStatus(task){
         const url = `/api/task/update/${task.id}`;
         APIUtil.post(url, {id: task.id}).then(res => {
@@ -173,6 +177,7 @@ const app = new Vue({
                 });
         },
         deleteGTDThing(mode, id){
+            //TODO: This function is doing too much, split it up
             //TODO: Improve this code
             const properties = ["items", "items", "tasks", "projects"];
             const api_call = ["item", "item", "task", "project"];
@@ -194,6 +199,17 @@ const app = new Vue({
                     }
                     this[properties[mode]] = filtered_list;
                 }
+            });
+        },
+        deleteProjectSubtask({pid, tid}){
+            APIConn.deleteProjectSubtask(pid, tid).then(res => {
+                if(!res.success) return;
+                this.projects = this.projects.map((p) => {
+                    if(p.id != pid) return p;
+                    let res = Object.assign({}, p);
+                    res.tasks = res.tasks.filter(t => t.id !== tid);
+                    return res;
+                });
             });
         },
         itemToTask(id){

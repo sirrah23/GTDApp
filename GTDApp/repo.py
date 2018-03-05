@@ -191,6 +191,34 @@ class GTDRepo:
 
 
     @classmethod
+    def delete_project_task(cls, project_id, task_id, user_id):
+        if not cls.connected:
+            return
+        if (not ObjectId.is_valid(project_id)
+            or not ObjectId.is_valid(task_id)
+            or not ObjectId.is_valid(user_id)):
+            return False
+        proj = Project.objects(id=project_id, user=user_id).first()
+        if not proj:
+            return
+        toid = ObjectId(task_id)
+        del_task = None
+        new_proj_tasks = []
+        for task in proj.tasks:
+            if task.id == toid:
+                del_task = task
+            else:
+                new_proj_tasks.append(task)
+        if not del_task: # The task we wanted to delete does not exist
+            return False
+        proj.tasks = new_proj_tasks
+        del_task.delete() # Actually delete the task we wanted to delete
+        proj.save() # Update project to remove reference to deleted task
+        print("Successfully removed the one task")
+        return True
+
+
+    @classmethod
     def delete_project(cls, project_id):
         if not cls.connected:
             return False

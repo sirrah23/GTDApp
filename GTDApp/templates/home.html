@@ -48,7 +48,7 @@
                             {{ task.description }}
                         </div>
                         <div class="content-list-item-column-2">
-                            {{ task.status.toUpperCase() }} 
+                            {{ task.status.toUpperCase() }}
                             <button class="toggle" @click="toggleTaskStatus(mode, task)">Toggle</button>
                             <button class="delete" @click="deleteGTDThing(mode, task.id)">X</button>
                         </div>
@@ -63,7 +63,7 @@
                             {{ project.description }}
                         </div>
                         <div class="content-list-item-column-2">
-                             <button class="add" @click="focusProject(project.id)">+</button>   
+                             <button class="add" @click="focusProject(project.id)">+</button>
                              <button class=delete @click="deleteGTDThing(mode, project.id)">X</button>
                         </div>
                         <ul class="content-list" id="project-tasks">
@@ -74,12 +74,12 @@
                                 </div>
                                 <div class="content-list-item-column-2">
                                     <button class="toggle" @click="toggleTaskStatus(mode, task)">Toggle</button>
-                                    <button class=delete @click="deleteGTDThing(mode, task.id)">X</button>
+                                    <button class=delete @click="deleteProjectSubtask({'pid': project.id, 'tid': task.id})">X</button>
                                 </div>
                             </li>
                             <li class="content-list-item" v-if="focusedProjectID === project.id">
                                 <div class="content-list-item-column-1">
-                                    <input 
+                                    <input
                                         v-model="newGTDSubtask"
                                         v-on:keyup.enter = "addProjectSubtask()"
                                     >

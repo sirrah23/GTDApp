@@ -41,6 +41,14 @@ def project_task_add(project_id):
     return json.dumps(res)
 
 
+@app.route("/api/project/<project_id>/task/<task_id>", methods=["POST"])
+@login_required
+def project_task_delete(project_id, task_id):
+    uid = current_user.get_id()
+    res = GTDRepo.delete_project_task(project_id, task_id, uid)
+    return json.dumps({"success": res})
+
+
 @app.route("/api/project", methods=["GET"])
 @login_required
 def project_get():
