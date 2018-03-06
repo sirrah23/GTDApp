@@ -90,6 +90,16 @@ def test_toggle_task_done_to_todo(resource):
     assert tasks[0]["description"] == "This is a task"
     assert tasks[0]["status"] == "todo"
 
+def test_delete_task(resource):
+    user_id = resource
+    task_to_del = GTDRepo.add_task(description="This is a task", user=user_id)
+    GTDRepo.add_task(description="This is another task", user=user_id)
+    assert len(GTDRepo.get_all_tasks()) == 2
+    assert GTDRepo.delete_task(task_to_del["id"], user_id) == True
+    remaining_tasks = GTDRepo.get_all_tasks()
+    assert len(remaining_tasks) == 1
+    assert remaining_tasks[0]["description"] == "This is another task"
+
 def test_store_project(resource):
     user_id = resource
     GTDRepo.add_task(description="Task1", user=user_id)

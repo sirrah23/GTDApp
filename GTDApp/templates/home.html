@@ -50,7 +50,7 @@
                         <div class="content-list-item-column-2">
                             {{ task.status.toUpperCase() }}
                             <button class="toggle" @click="toggleTaskStatus(mode, task)">Toggle</button>
-                            <button class="delete" @click="deleteGTDThing(mode, task.id)">X</button>
+                            <button class="delete" @click="deleteTask(task.id)">X</button>
                         </div>
                     </li>
                 </ul>

@@ -34,6 +34,16 @@ def task_get():
     return json.dumps(res)
 
 
+# TODO: Use the actual delete method here
+@app.route("/api/task/<task_id>/delete", methods=["POST"])
+@login_required
+def task_delete(task_id):
+    uid = current_user.get_obj_id()
+    res = GTDRepo.delete_task(task_id, uid)
+    return json.dumps({"success": res})
+
+
+# TODO: Use the actual update method here
 @app.route("/api/task/update/<task_id>", methods=["POST"])
 @login_required
 def task_update(task_id):

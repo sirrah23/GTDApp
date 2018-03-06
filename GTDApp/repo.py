@@ -127,6 +127,18 @@ class GTDRepo:
         return True
 
     @classmethod
+    def delete_task(cls, task_id, user_id):
+        if not cls.connected:
+            return False
+        if not ObjectId.is_valid(task_id) or not ObjectId.is_valid(user_id):
+            return False
+        task_to_del = Task.objects(id=task_id, user=user_id).first()
+        if not task_to_del:
+            return False
+        task_to_del.delete()
+        return True
+
+    @classmethod
     def add_project(cls, description, user, tasks=[]):
         if not cls.connected:
             return

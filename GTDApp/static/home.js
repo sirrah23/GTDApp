@@ -40,6 +40,9 @@ const APIConn = {
         const url = `/api/${mode}/delete/${id}`;
         return APIUtil.post(url, {id: id});
     },
+    deleteTask(tid){
+        return APIUtil.post(`/api/task/${tid}/delete`, {});
+    },
     itemToTask(item_id){
         return APIUtil.post(`/api/item/${item_id}/to-task`, {});
     },
@@ -193,6 +196,12 @@ const app = new Vue({
                     }
                     this[properties[mode]] = filtered_list;
                 }
+            });
+        },
+        deleteTask(tid){
+            APIConn.deleteTask(tid).then(res =>{
+                if(!res.success) return;
+                this.tasks = this.tasks.filter(t => t.id !== tid);
             });
         },
         deleteProjectSubtask({pid, tid}){
