@@ -53,6 +53,22 @@ class GTDRepo:
         return res
 
     @classmethod
+    def item_to_task(cls, item_id, user_id):
+        if not cls.connected:
+            return None
+        if not ObjectId.is_valid(item_id) or not ObjectId.is_valid(user_id):
+            return None
+        item = Item.objects(id=item_id, user=user_id).first()
+        if not item:
+            return None
+        description = item.description
+        task = cls.add_task(description, user_id, str_id=True)
+        if not task:
+            return None
+        item.delete()
+        return task
+
+    @classmethod
     def add_task(cls, description, user, status="todo", project=False, str_id=False):
         if not cls.connected:
             return
@@ -184,7 +200,7 @@ class GTDRepo:
         p = Project.objects(id=project_id, user=user_id).first()
         if not p:
             return
-        t = GTDRepo.add_task(description, user_id, project=True, str_id=True)
+        t = cls.add_task(description, user_id, project=True, str_id=True)
         p.tasks.append(ObjectId(t["id"]))
         p.save()
         return t

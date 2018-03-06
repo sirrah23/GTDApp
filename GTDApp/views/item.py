@@ -40,3 +40,13 @@ def item_delete(item_id):
     delete_res = GTDRepo.delete_item(item_id)
     return json.dumps({"success": delete_res})
 
+
+@app.route("/api/item/<item_id>/to-task", methods=["POST"])
+@login_required
+def item_to_task(item_id):
+    uid = current_user.get_obj_id()
+    task = GTDRepo.item_to_task(item_id, uid)
+    if not task:
+        return json.dumps({"success": False})
+    else:
+        return json.dumps({"success": True, "data": task})

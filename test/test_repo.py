@@ -41,9 +41,20 @@ def test_delete_two_item(resource):
     assert GTDRepo.delete_item(item_id_2) == True
     assert len(GTDRepo.get_all_items()) == 0
 
-def test_delete_nonexistent(resource):
+def test_delete_nonexistent_item(resource):
     user_id = resource
     assert GTDRepo.delete_item("thisisafakeid") == False
+
+def test_item_to_task(resource):
+    user_id = resource
+    GTDRepo.add_item(description="Thing", location="inbox", user=user_id)
+    added_item = GTDRepo.get_all_items()[0]
+    task = GTDRepo.item_to_task(added_item["id"], user_id)
+    # No more items
+    assert len(GTDRepo.get_all_items()) == 0
+    # Task used to be the item
+    assert task is not None
+    assert task["description"] == "Thing"
 
 def test_store_task(resource):
     user_id = resource

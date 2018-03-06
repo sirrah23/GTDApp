@@ -40,14 +40,8 @@ const APIConn = {
         const url = `/api/${mode}/delete/${id}`;
         return APIUtil.post(url, {id: id});
     },
-    itemToTask(id){
-        return new Promise((resolve, reject) => {
-            resolve({
-                id: Math.floor(Math.random() * 150),
-                description: app.items.filter(i => i.id === id)[0].description,
-                status: "todo"
-            });
-        });
+    itemToTask(item_id){
+        return APIUtil.post(`/api/item/${item_id}/to-task`, {});
     },
     itemToProject(id){
         return new Promise((resolve, reject) => {
@@ -212,10 +206,11 @@ const app = new Vue({
                 });
             });
         },
-        itemToTask(id){
-            APIConn.itemToTask(id).then(res => {
-                this.items = this.items.filter(i => i.id !== id);
-                this.tasks.push(res);
+        itemToTask(item_id){
+            APIConn.itemToTask(item_id).then(res => {
+                if(!res.success) return;
+                this.items = this.items.filter(i => i.id !== item_id);
+                this.tasks.push(res.data);
             });
         },
         itemToProject(id){
