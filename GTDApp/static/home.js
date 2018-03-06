@@ -46,6 +46,9 @@ const APIConn = {
     itemToTask(item_id){
         return APIUtil.post(`/api/item/${item_id}/to-task`, {});
     },
+    taskToProject(task_id){
+        return APIUtil.post(`/api/task/${task_id}/to-project`, {});
+    },
     itemToProject(id){
         return new Promise((resolve, reject) => {
             resolve({
@@ -256,6 +259,13 @@ const app = new Vue({
         toggleTaskStatus(mode, task){
             const properties = ["items", "items", "tasks", "projects"];
             APIConn.toggleTaskStatus(task);
+        },
+        taskToProject(tid){
+            APIConn.taskToProject(tid).then(res => {
+                if(!res.success) return;
+                this.tasks = this.tasks.filter(t => t.id !== tid);
+                this.projects.push(res.data);
+            });
         }
     }
 });

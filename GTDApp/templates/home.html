@@ -50,6 +50,7 @@
                         <div class="content-list-item-column-2">
                             {{ task.status.toUpperCase() }}
                             <button class="toggle" @click="toggleTaskStatus(mode, task)">Toggle</button>
+                            <button @click="taskToProject(task.id)">TP</button>
                             <button class="delete" @click="deleteTask(task.id)">X</button>
                         </div>
                     </li>

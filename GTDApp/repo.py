@@ -139,6 +139,22 @@ class GTDRepo:
         return True
 
     @classmethod
+    def task_to_project(cls, task_id, user_id):
+        if not cls.connected:
+            return None
+        if not ObjectId.is_valid(task_id) or not ObjectId.is_valid(user_id):
+            return None
+        task = Task.objects(id=task_id, user=user_id).first()
+        if not task:
+            return None
+        description = task.description
+        project = cls.add_project(description, user_id)
+        if not project:
+            return None
+        task.delete()
+        return project
+
+    @classmethod
     def add_project(cls, description, user, tasks=[]):
         if not cls.connected:
             return

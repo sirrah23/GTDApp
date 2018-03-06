@@ -56,3 +56,13 @@ def task_update(task_id):
     else:
         return json.dumps({"success": True})
 
+
+@app.route("/api/task/<task_id>/to-project", methods=["POST"])
+@login_required
+def task_to_project(task_id):
+    uid = current_user.get_obj_id()
+    project = GTDRepo.task_to_project(task_id, uid)
+    if not project:
+        return json.dumps({"success": False})
+    else:
+        return json.dumps({"success": True, "data": project})
