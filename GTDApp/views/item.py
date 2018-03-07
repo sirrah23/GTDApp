@@ -14,7 +14,7 @@ def item_add():
         res = {"success": False}
     else:
         res = {}
-        added_item = GTDRepo.add_item(payload["description"], uid, str_id=True)
+        added_item = GTDRepo.add_item(payload["description"], uid)
         if added_item:
             res["success"] = True
             res["data"] = added_item
@@ -39,6 +39,17 @@ def item_get():
 def item_delete(item_id):
     delete_res = GTDRepo.delete_item(item_id)
     return json.dumps({"success": delete_res})
+
+
+@app.route("/api/item/<item_id>/to-someday", methods=["POST"])
+@login_required
+def item_to_someday(item_id):
+    uid = current_user.get_obj_id()
+    item = GTDRepo.item_to_someday(item_id, uid)
+    if not item:
+        return json.dumps({"success": False})
+    else:
+        return json.dumps({"success": True, "data": item})
 
 
 @app.route("/api/item/<item_id>/to-task", methods=["POST"])

@@ -33,6 +33,7 @@
                             {{ item.description }}
                         </div>
                         <div class="content-list-item-column-2">
+                            <button class=tasks @click="itemToSomeday(item.id)" v-if="mode === 0">TS</button>
                             <button class=tasks @click="itemToTask(item.id)">TT</button>
                             <button class=project @click="itemToProject(item.id)">TP</button>
                             <button class=delete @click="deleteGTDThing(mode, item.id)">X</button>

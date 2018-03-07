@@ -2,6 +2,12 @@ from bson import ObjectId
 from .schema import database_setup, Item, Task, Project, User
 
 
+"""
+TODO: Come up with a generic way to transform mongoengine objects
+into their dictionary form
+"""
+
+
 class GTDRepo:
 
     connected = False
@@ -12,13 +18,13 @@ class GTDRepo:
         cls.connected = True
 
     @classmethod
-    def add_item(cls, description, user, location="inbox", str_id=False):
+    def add_item(cls, description, user, location="inbox"):
         if not cls.connected:
             return
         i = Item(description=description, location=location, user=user)
         i.save()
         res = {}
-        res["id"] = i.id if not str_id else str(i.id)
+        res["id"] = str(i.id)
         res["description"] = description
         res["location"] = location
         return res
@@ -51,6 +57,23 @@ class GTDRepo:
                 "location": item.location
             })
         return res
+
+    @classmethod
+    def item_to_someday(cls, item_id, user_id):
+        if not cls.connected:
+            return None
+        if not ObjectId.is_valid(item_id) or not ObjectId.is_valid(user_id):
+            return None
+        item = Item.objects(id=item_id, user=user_id).first()
+        if not item:
+            return None
+        item.location = "someday/maybe"
+        item.save()
+        res = ({"id": str(item.id),
+                "description": item.description,
+                "location": item.location})
+        return res
+
 
     @classmethod
     def item_to_task(cls, item_id, user_id):
