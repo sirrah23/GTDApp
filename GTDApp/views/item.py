@@ -61,3 +61,14 @@ def item_to_task(item_id):
         return json.dumps({"success": False})
     else:
         return json.dumps({"success": True, "data": task})
+
+
+@app.route("/api/item/<item_id>/to-project", methods=["POST"])
+@login_required
+def item_to_project(item_id):
+    uid = current_user.get_obj_id()
+    project = GTDRepo.item_to_project(item_id, uid)
+    if not project:
+        return json.dumps({"success": False})
+    else:
+        return json.dumps({"success": True, "data": project})

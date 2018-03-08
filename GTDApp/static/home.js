@@ -52,14 +52,8 @@ const APIConn = {
     taskToProject(task_id){
         return APIUtil.post(`/api/task/${task_id}/to-project`, {});
     },
-    itemToProject(id){
-        return new Promise((resolve, reject) => {
-            resolve({
-                id: Math.floor(Math.random() * 150),
-                description: app.items.filter(i => i.id === id)[0].description,
-                tasks: []
-            });
-        });
+    itemToProject(item_id){
+        return APIUtil.post(`/api/item/${item_id}/to-project`, {});
     },
     addProjectSubtask(pid, description){
         const url = `/api/project/${pid}/task`;
@@ -235,10 +229,11 @@ const app = new Vue({
                 this.tasks.push(res.data);
             });
         },
-        itemToProject(id){
-            APIConn.itemToProject(id).then(res => {
-                this.items = this.items.filter(i => i.id !== id);
-                this.projects.push(res);
+        itemToProject(item_id){
+            APIConn.itemToProject(item_id).then(res => {
+                if(!res.success) return;
+                this.items = this.items.filter(i => i.id !== item_id);
+                this.projects.push(res.data);
             });
         },
         focusProject(id){

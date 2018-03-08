@@ -54,7 +54,6 @@ def test_item_to_someday(resource):
     assert item["description"] == someday_item["description"]
     assert someday_item["location"] == "someday/maybe"
 
-
 def test_item_to_task(resource):
     user_id = resource
     GTDRepo.add_item(description="Thing", location="inbox", user=user_id)
@@ -65,6 +64,14 @@ def test_item_to_task(resource):
     # Task used to be the item
     assert task is not None
     assert task["description"] == "Thing"
+
+def test_item_to_project(resource):
+    user_id = resource
+    item = GTDRepo.add_item(description="Thing", location="inbox", user=user_id)
+    project = GTDRepo.item_to_project(item["id"], user_id)
+    assert project is not None
+    assert len(GTDRepo.get_all_items()) == 0
+    assert project["description"] == "Thing"
 
 def test_store_task(resource):
     user_id = resource
