@@ -1,7 +1,7 @@
 import json
 from flask import request
 from GTDApp import app
-from GTDApp.repo import GTDRepo
+from GTDApp.repo import ItemRepo
 from flask_login import login_required, current_user
 
 
@@ -14,7 +14,7 @@ def item_add():
         res = {"success": False}
     else:
         res = {}
-        added_item = GTDRepo.add_item(payload["description"], uid)
+        added_item = ItemRepo.add_item(payload["description"], uid)
         if added_item:
             res["success"] = True
             res["data"] = added_item
@@ -27,7 +27,7 @@ def item_add():
 @login_required
 def item_get():
     uid = current_user.get_obj_id()
-    user_items = GTDRepo.get_all_items(user=uid, str_id=True)
+    user_items = ItemRepo.get_all_items(user=uid, str_id=True)
     res = {}
     res["success"] = True
     res["data"] = user_items
@@ -37,7 +37,7 @@ def item_get():
 @app.route("/api/item/delete/<item_id>", methods=["POST"])
 @login_required
 def item_delete(item_id):
-    delete_res = GTDRepo.delete_item(item_id)
+    delete_res = ItemRepo.delete_item(item_id)
     return json.dumps({"success": delete_res})
 
 
@@ -45,7 +45,7 @@ def item_delete(item_id):
 @login_required
 def item_to_someday(item_id):
     uid = current_user.get_obj_id()
-    item = GTDRepo.item_to_someday(item_id, uid)
+    item = ItemRepo.item_to_someday(item_id, uid)
     if not item:
         return json.dumps({"success": False})
     else:
@@ -56,7 +56,7 @@ def item_to_someday(item_id):
 @login_required
 def item_to_task(item_id):
     uid = current_user.get_obj_id()
-    task = GTDRepo.item_to_task(item_id, uid)
+    task = ItemRepo.item_to_task(item_id, uid)
     if not task:
         return json.dumps({"success": False})
     else:
@@ -67,7 +67,7 @@ def item_to_task(item_id):
 @login_required
 def item_to_project(item_id):
     uid = current_user.get_obj_id()
-    project = GTDRepo.item_to_project(item_id, uid)
+    project = ItemRepo.item_to_project(item_id, uid)
     if not project:
         return json.dumps({"success": False})
     else:

@@ -1,4 +1,4 @@
-from GTDApp.repo import GTDRepo
+from GTDApp.repo import GTDRepo, ItemRepo
 from utils import drop_db, random_objectid
 import pytest
 
@@ -12,43 +12,43 @@ def resource():
 
 def test_store_item(resource):
     user_id = resource
-    GTDRepo.add_item(description="This is an item", location="inbox", user=user_id)
-    items = GTDRepo.get_all_items()
+    ItemRepo.add_item(description="This is an item", location="inbox", user=user_id)
+    items = ItemRepo.get_all_items()
     assert len(items) == 1
     assert items[0]["description"] == "This is an item"
     assert items[0]["location"] == "inbox"
 
 def test_delete_item(resource):
     user_id = resource
-    GTDRepo.add_item(description="This is an item", location="inbox", user=user_id)
-    items = GTDRepo.get_all_items()
+    ItemRepo.add_item(description="This is an item", location="inbox", user=user_id)
+    items = ItemRepo.get_all_items()
     assert len(items) == 1
     item_id = str(items[0]["id"])
-    assert GTDRepo.delete_item(item_id) == True
-    items = GTDRepo.get_all_items()
+    assert ItemRepo.delete_item(item_id) == True
+    items = ItemRepo.get_all_items()
     assert len(items) == 0
 
 def test_delete_two_item(resource):
     user_id = resource
-    GTDRepo.add_item(description="This is an item", location="inbox", user=user_id)
-    GTDRepo.add_item(description="This is another item", location="inbox", user=user_id)
-    items = GTDRepo.get_all_items()
+    ItemRepo.add_item(description="This is an item", location="inbox", user=user_id)
+    ItemRepo.add_item(description="This is another item", location="inbox", user=user_id)
+    items = ItemRepo.get_all_items()
     assert len(items) == 2
     item_id_1 = str(items[0]["id"])
     item_id_2 = str(items[1]["id"])
-    assert GTDRepo.delete_item(item_id_1) == True
-    assert len(GTDRepo.get_all_items()) == 1
-    assert GTDRepo.delete_item(item_id_2) == True
-    assert len(GTDRepo.get_all_items()) == 0
+    assert ItemRepo.delete_item(item_id_1) == True
+    assert len(ItemRepo.get_all_items()) == 1
+    assert ItemRepo.delete_item(item_id_2) == True
+    assert len(ItemRepo.get_all_items()) == 0
 
 def test_delete_nonexistent_item(resource):
     user_id = resource
-    assert GTDRepo.delete_item("thisisafakeid") == False
+    assert ItemRepo.delete_item("thisisafakeid") == False
 
 def test_item_to_someday(resource):
     user_id = resource
-    item = GTDRepo.add_item(description="This is an item", location="inbox", user=user_id)
-    someday_item = GTDRepo.item_to_someday(item["id"], user_id)
+    item = ItemRepo.add_item(description="This is an item", location="inbox", user=user_id)
+    someday_item = ItemRepo.item_to_someday(item["id"], user_id)
     assert someday_item is not None
     assert item["id"] == someday_item["id"]
     assert item["description"] == someday_item["description"]
@@ -56,21 +56,21 @@ def test_item_to_someday(resource):
 
 def test_item_to_task(resource):
     user_id = resource
-    GTDRepo.add_item(description="Thing", location="inbox", user=user_id)
-    added_item = GTDRepo.get_all_items()[0]
-    task = GTDRepo.item_to_task(added_item["id"], user_id)
+    ItemRepo.add_item(description="Thing", location="inbox", user=user_id)
+    added_item = ItemRepo.get_all_items()[0]
+    task = ItemRepo.item_to_task(added_item["id"], user_id)
     # No more items
-    assert len(GTDRepo.get_all_items()) == 0
+    assert len(ItemRepo.get_all_items()) == 0
     # Task used to be the item
     assert task is not None
     assert task["description"] == "Thing"
 
 def test_item_to_project(resource):
     user_id = resource
-    item = GTDRepo.add_item(description="Thing", location="inbox", user=user_id)
-    project = GTDRepo.item_to_project(item["id"], user_id)
+    item = ItemRepo.add_item(description="Thing", location="inbox", user=user_id)
+    project = ItemRepo.item_to_project(item["id"], user_id)
     assert project is not None
-    assert len(GTDRepo.get_all_items()) == 0
+    assert len(ItemRepo.get_all_items()) == 0
     assert project["description"] == "Thing"
 
 def test_store_task(resource):

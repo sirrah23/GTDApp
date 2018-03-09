@@ -7,10 +7,18 @@ TODO: Come up with a generic way to transform mongoengine objects
 into their dictionary form
 """
 
+"""
+TODO: Don't use repos inside of other repos!
+"""
 
-class GTDRepo:
+class ItemRepo:
+    """
+    A repository class to be used for performing Item-specific database
+    manipulations.
+    """
 
     connected = False
+    item_model = Item
 
     @classmethod
     def connect(cls, db_name):
@@ -21,7 +29,7 @@ class GTDRepo:
     def add_item(cls, description, user, location="inbox"):
         if not cls.connected:
             return
-        i = Item(description=description, location=location, user=user)
+        i = cls.item_model(description=description, location=location, user=user)
         i.save()
         res = {}
         res["id"] = str(i.id)
@@ -35,7 +43,7 @@ class GTDRepo:
             return False
         if not ObjectId.is_valid(item_id):
             return False
-        item = Item.objects(id=item_id)
+        item = cls.item_model.objects(id=item_id)
         if len(item) != 1:
             return False
         item.delete()
@@ -46,9 +54,9 @@ class GTDRepo:
         if not cls.connected:
             return None
         if not user:
-            items = Item.objects()
+            items = cls.item_model.objects()
         else:
-            items = Item.objects(user=user)
+            items = cls.item_model.objects(user=user)
         res = []
         for item in items:
             res.append({
@@ -64,7 +72,7 @@ class GTDRepo:
             return None
         if not ObjectId.is_valid(item_id) or not ObjectId.is_valid(user_id):
             return None
-        item = Item.objects(id=item_id, user=user_id).first()
+        item = cls.item_model.objects(id=item_id, user=user_id).first()
         if not item:
             return None
         item.location = "someday/maybe"
@@ -74,18 +82,17 @@ class GTDRepo:
                 "location": item.location})
         return res
 
-
     @classmethod
     def item_to_task(cls, item_id, user_id):
         if not cls.connected:
             return None
         if not ObjectId.is_valid(item_id) or not ObjectId.is_valid(user_id):
             return None
-        item = Item.objects(id=item_id, user=user_id).first()
+        item = cls.item_model.objects(id=item_id, user=user_id).first()
         if not item:
             return None
         description = item.description
-        task = cls.add_task(description, user_id, str_id=True)
+        task = GTDRepo.add_task(description, user_id, str_id=True)
         if not task:
             return None
         item.delete()
@@ -97,15 +104,25 @@ class GTDRepo:
             return None
         if not ObjectId.is_valid(item_id) or not ObjectId.is_valid(user_id):
             return None
-        item = Item.objects(id=item_id, user=user_id).first()
+        item = cls.item_model.objects(id=item_id, user=user_id).first()
         if not item:
             return None
         description = item.description
-        project = cls.add_project(description, user_id)
+        project = GTDRepo.add_project(description, user_id)
         if not project:
             return None
         item.delete()
         return project
+
+
+class GTDRepo:
+
+    connected = False
+
+    @classmethod
+    def connect(cls, db_name):
+        database_setup(db_name)
+        cls.connected = True
 
     @classmethod
     def add_task(cls, description, user, status="todo", project=False, str_id=False):
