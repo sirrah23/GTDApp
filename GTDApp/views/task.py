@@ -14,7 +14,7 @@ def task_add():
         res = {"success": False}
     else:
         res = {}
-        added_task = TaskRepo.add_task(payload["description"], uid, str_id=True)
+        added_task = TaskRepo.add_task(payload["description"], uid)
         if added_task:
             res["success"] = True
             res["data"] = added_task

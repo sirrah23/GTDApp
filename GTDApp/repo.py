@@ -92,7 +92,7 @@ class ItemRepo:
         if not item:
             return None
         description = item.description
-        task = TaskRepo.add_task(description, user_id, str_id=True)
+        task = TaskRepo.add_task(description, user_id)
         if not task:
             return None
         item.delete()
@@ -118,6 +118,7 @@ class ItemRepo:
 class TaskRepo:
 
     connected = False
+    task_model = Task
 
     @classmethod
     def connect(cls, db_name):
@@ -125,13 +126,13 @@ class TaskRepo:
         cls.connected = True
 
     @classmethod
-    def add_task(cls, description, user, status="todo", project=False, str_id=False):
+    def add_task(cls, description, user, status="todo", project=False):
         if not cls.connected:
             return
         t = Task(description=description, user=user, status=status, is_project_task=project)
         t.save()
         res = {}
-        res["id"] = t.id if not str_id else str(t.id)
+        res["id"] = str(t.id)
         res["description"] = description
         res["status"] = status
         return res
@@ -143,9 +144,9 @@ class TaskRepo:
         if not ObjectId.is_valid(task_id):
             return None
         if not user:
-            task = Task.objects(id=task_id).first()
+            task = cls.task_model.objects(id=task_id).first()
         else:
-            task = Task.objects(user=user, id=task_id).first()
+            task = cls.task_model.objects(user=user, id=task_id).first()
         return ({"id": str(task.id),
                 "description": task.description,
                 "status": task.status})
@@ -155,9 +156,9 @@ class TaskRepo:
         if not cls.connected:
             return None
         if not user:
-            tasks = Task.objects(is_project_task=project)
+            tasks = cls.task_model.objects(is_project_task=project)
         else:
-            tasks = Task.objects(is_project_task=project, user=user)
+            tasks = cls.task_model.objects(is_project_task=project, user=user)
         res = []
         for task in tasks:
             res.append({
@@ -173,7 +174,7 @@ class TaskRepo:
             return None
         if not ObjectId.is_valid(task_id):
             return False
-        task = Task.objects(id=task_id).first()
+        task = cls.task_model.objects(id=task_id).first()
         # TODO: Is there a way to stuff this logic into the Task object itself?
         if task.status == "todo":
             task.status = "done"
@@ -188,7 +189,7 @@ class TaskRepo:
             return False
         if not ObjectId.is_valid(task_id) or not ObjectId.is_valid(user_id):
             return False
-        task_to_del = Task.objects(id=task_id, user=user_id).first()
+        task_to_del = cls.task_model.objects(id=task_id, user=user_id).first()
         if not task_to_del:
             return False
         task_to_del.delete()
@@ -200,7 +201,7 @@ class TaskRepo:
             return None
         if not ObjectId.is_valid(task_id) or not ObjectId.is_valid(user_id):
             return None
-        task = Task.objects(id=task_id, user=user_id).first()
+        task = cls.task_model.objects(id=task_id, user=user_id).first()
         if not task:
             return None
         description = task.description
@@ -294,7 +295,7 @@ class GTDRepo:
         p = Project.objects(id=project_id, user=user_id).first()
         if not p:
             return
-        t = TaskRepo.add_task(description, user_id, project=True, str_id=True)
+        t = TaskRepo.add_task(description, user_id, project=True)
         p.tasks.append(ObjectId(t["id"]))
         p.save()
         return t
