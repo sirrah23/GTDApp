@@ -92,7 +92,7 @@ class ItemRepo:
         if not item:
             return None
         description = item.description
-        task = GTDRepo.add_task(description, user_id, str_id=True)
+        task = TaskRepo.add_task(description, user_id, str_id=True)
         if not task:
             return None
         item.delete()
@@ -115,7 +115,7 @@ class ItemRepo:
         return project
 
 
-class GTDRepo:
+class TaskRepo:
 
     connected = False
 
@@ -204,11 +204,21 @@ class GTDRepo:
         if not task:
             return None
         description = task.description
-        project = cls.add_project(description, user_id)
+        project = GTDRepo.add_project(description, user_id)
         if not project:
             return None
         task.delete()
         return project
+
+
+class GTDRepo:
+
+    connected = False
+
+    @classmethod
+    def connect(cls, db_name):
+        database_setup(db_name)
+        cls.connected = True
 
     @classmethod
     def add_project(cls, description, user, tasks=[]):
@@ -284,7 +294,7 @@ class GTDRepo:
         p = Project.objects(id=project_id, user=user_id).first()
         if not p:
             return
-        t = cls.add_task(description, user_id, project=True, str_id=True)
+        t = TaskRepo.add_task(description, user_id, project=True, str_id=True)
         p.tasks.append(ObjectId(t["id"]))
         p.save()
         return t

@@ -1,4 +1,4 @@
-from GTDApp.repo import GTDRepo, ItemRepo
+from GTDApp.repo import GTDRepo, ItemRepo, TaskRepo
 from utils import drop_db, random_objectid
 import pytest
 
@@ -75,63 +75,63 @@ def test_item_to_project(resource):
 
 def test_store_task(resource):
     user_id = resource
-    GTDRepo.add_task(description="This is a task", user=user_id)
-    tasks = GTDRepo.get_all_tasks()
+    TaskRepo.add_task(description="This is a task", user=user_id)
+    tasks = TaskRepo.get_all_tasks()
     assert len(tasks) == 1
     assert tasks[0]["description"] == "This is a task"
     assert tasks[0]["status"] == "todo"
 
 def test_toggle_task_todo_to_done(resource):
     user_id = resource
-    GTDRepo.add_task(description="This is a task", user=user_id)
-    tasks = GTDRepo.get_all_tasks()
+    TaskRepo.add_task(description="This is a task", user=user_id)
+    tasks = TaskRepo.get_all_tasks()
     assert len(tasks) == 1
     assert tasks[0]["description"] == "This is a task"
     assert tasks[0]["status"] == "todo"
-    assert GTDRepo.toggle_task(str(tasks[0]["id"])) == True
-    tasks = GTDRepo.get_all_tasks()
+    assert TaskRepo.toggle_task(str(tasks[0]["id"])) == True
+    tasks = TaskRepo.get_all_tasks()
     assert len(tasks) == 1
     assert tasks[0]["description"] == "This is a task"
     assert tasks[0]["status"] == "done"
 
 def test_toggle_task_done_to_todo(resource):
     user_id = resource
-    GTDRepo.add_task(description="This is a task", user=user_id, status="done")
-    tasks = GTDRepo.get_all_tasks()
+    TaskRepo.add_task(description="This is a task", user=user_id, status="done")
+    tasks = TaskRepo.get_all_tasks()
     assert len(tasks) == 1
     assert tasks[0]["description"] == "This is a task"
     assert tasks[0]["status"] == "done"
-    assert GTDRepo.toggle_task(str(tasks[0]["id"])) == True
-    tasks = GTDRepo.get_all_tasks()
+    assert TaskRepo.toggle_task(str(tasks[0]["id"])) == True
+    tasks = TaskRepo.get_all_tasks()
     assert len(tasks) == 1
     assert tasks[0]["description"] == "This is a task"
     assert tasks[0]["status"] == "todo"
 
 def test_task_to_project(resource):
     user_id = resource
-    task = GTDRepo.add_task(description="Thing", user=user_id)
-    project = GTDRepo.task_to_project(task["id"], user_id)
+    task = TaskRepo.add_task(description="Thing", user=user_id)
+    project = TaskRepo.task_to_project(task["id"], user_id)
     # No more tasks
-    assert len(GTDRepo.get_all_tasks()) == 0
+    assert len(TaskRepo.get_all_tasks()) == 0
     # Project used to be the task
     assert project is not None
     assert project["description"] == "Thing"
 
 def test_delete_task(resource):
     user_id = resource
-    task_to_del = GTDRepo.add_task(description="This is a task", user=user_id)
-    GTDRepo.add_task(description="This is another task", user=user_id)
-    assert len(GTDRepo.get_all_tasks()) == 2
-    assert GTDRepo.delete_task(task_to_del["id"], user_id) == True
-    remaining_tasks = GTDRepo.get_all_tasks()
+    task_to_del = TaskRepo.add_task(description="This is a task", user=user_id)
+    TaskRepo.add_task(description="This is another task", user=user_id)
+    assert len(TaskRepo.get_all_tasks()) == 2
+    assert TaskRepo.delete_task(task_to_del["id"], user_id) == True
+    remaining_tasks = TaskRepo.get_all_tasks()
     assert len(remaining_tasks) == 1
     assert remaining_tasks[0]["description"] == "This is another task"
 
 def test_store_project(resource):
     user_id = resource
-    GTDRepo.add_task(description="Task1", user=user_id)
-    GTDRepo.add_task(description="Task2", user=user_id)
-    tasks = list(map(lambda t: t["id"], GTDRepo.get_all_tasks()))
+    TaskRepo.add_task(description="Task1", user=user_id)
+    TaskRepo.add_task(description="Task2", user=user_id)
+    tasks = list(map(lambda t: t["id"], TaskRepo.get_all_tasks()))
     GTDRepo.add_project(description="ProjectA",  tasks=tasks, user=user_id)
     projects = GTDRepo.get_all_projects()
     assert len(projects) == 1
@@ -167,5 +167,5 @@ def test_delete_project_task_bad(resource):
     """
     user_id = resource
     proj = GTDRepo.add_project(description="ProjectA", user=user_id, tasks=[])
-    task = GTDRepo.add_task(description="Task1", user=user_id)
+    task = TaskRepo.add_task(description="Task1", user=user_id)
     assert GTDRepo.delete_project_task(proj["id"], task["id"], user_id) == False
