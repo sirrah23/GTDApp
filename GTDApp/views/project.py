@@ -1,7 +1,7 @@
 import json
 from flask import request
 from GTDApp import app
-from GTDApp.repo import GTDRepo
+from GTDApp.repo import ProjectRepo
 from flask_login import login_required, current_user
 
 
@@ -14,7 +14,7 @@ def project_add():
         res = {"success": False}
     else:
         res = {}
-        added_project = GTDRepo.add_project(payload["description"], uid)
+        added_project = ProjectRepo.add_project(payload["description"], uid)
         if added_project:
             res["success"] = True
             res["data"] = added_project
@@ -32,7 +32,7 @@ def project_task_add(project_id):
         res = {"success": False}
     else:
         res = {}
-        added_task = GTDRepo.add_project_task(project_id, payload["description"], uid)
+        added_task = ProjectRepo.add_project_task(project_id, payload["description"], uid)
         if added_task:
             res["success"] = True
             res["data"] = added_task
@@ -45,7 +45,7 @@ def project_task_add(project_id):
 @login_required
 def project_task_delete(project_id, task_id):
     uid = current_user.get_id()
-    res = GTDRepo.delete_project_task(project_id, task_id, uid)
+    res = ProjectRepo.delete_project_task(project_id, task_id, uid)
     return json.dumps({"success": res})
 
 
@@ -53,7 +53,7 @@ def project_task_delete(project_id, task_id):
 @login_required
 def project_get():
     uid = current_user.get_obj_id()
-    user_projects = GTDRepo.get_all_projects(user=uid)
+    user_projects = ProjectRepo.get_all_projects(user=uid)
     res = {}
     if user_projects:
         res["success"] = True
@@ -67,5 +67,5 @@ def project_get():
 @app.route("/api/project/delete/<project_id>", methods=["POST"])
 @login_required
 def project_delete(project_id):
-    delete_res = GTDRepo.delete_project(project_id)
+    delete_res = ProjectRepo.delete_project(project_id)
     return json.dumps({"success": delete_res})

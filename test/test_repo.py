@@ -1,4 +1,4 @@
-from GTDApp.repo import GTDRepo, ItemRepo, TaskRepo, UserRepo
+from GTDApp.repo import ProjectRepo, ItemRepo, TaskRepo, UserRepo
 from utils import drop_db, random_objectid
 import pytest
 
@@ -132,8 +132,8 @@ def test_store_project(resource):
     TaskRepo.add_task(description="Task1", user=user_id)
     TaskRepo.add_task(description="Task2", user=user_id)
     tasks = list(map(lambda t: t["id"], TaskRepo.get_all_tasks()))
-    GTDRepo.add_project(description="ProjectA",  tasks=tasks, user=user_id)
-    projects = GTDRepo.get_all_projects()
+    ProjectRepo.add_project(description="ProjectA",  tasks=tasks, user=user_id)
+    projects = ProjectRepo.get_all_projects()
     assert len(projects) == 1
     assert projects[0]["description"] == "ProjectA"
     assert len(projects[0]["tasks"]) == 2
@@ -142,10 +142,10 @@ def test_store_project(resource):
 
 def test_store_project_task(resource):
     user_id = resource
-    added_proj_one = GTDRepo.add_project(description="ProjectA", user=user_id, tasks=[])
+    added_proj_one = ProjectRepo.add_project(description="ProjectA", user=user_id, tasks=[])
     assert len(added_proj_one["tasks"]) == 0
-    added_subtask = GTDRepo.add_project_task(added_proj_one["id"], "ProjectASubtask", user_id)
-    added_proj_two = GTDRepo.get_all_projects()[0]
+    added_subtask = ProjectRepo.add_project_task(added_proj_one["id"], "ProjectASubtask", user_id)
+    added_proj_two = ProjectRepo.get_all_projects()[0]
     assert len(added_proj_two["tasks"]) == 1
     assert added_proj_one["id"] == added_proj_two["id"]
     assert added_subtask["id"] in map(lambda t: t["id"], added_proj_two["tasks"])
@@ -155,10 +155,10 @@ def test_delete_project_task_good(resource):
     Successfully delete a subtask for a given project.
     """
     user_id = resource
-    proj = GTDRepo.add_project(description="ProjectA", user=user_id, tasks=[])
-    subtask = GTDRepo.add_project_task(proj["id"], "ProjectASubtask", user_id)
-    assert GTDRepo.delete_project_task(proj["id"], subtask["id"], user_id) == True
-    proj = GTDRepo.get_all_projects()[0]
+    proj = ProjectRepo.add_project(description="ProjectA", user=user_id, tasks=[])
+    subtask = ProjectRepo.add_project_task(proj["id"], "ProjectASubtask", user_id)
+    assert ProjectRepo.delete_project_task(proj["id"], subtask["id"], user_id) == True
+    proj = ProjectRepo.get_all_projects()[0]
     assert len(proj["tasks"]) == 0
 
 def test_delete_project_task_bad(resource):
@@ -166,6 +166,6 @@ def test_delete_project_task_bad(resource):
     Should not be able to delete a task if it does not belong to the project
     """
     user_id = resource
-    proj = GTDRepo.add_project(description="ProjectA", user=user_id, tasks=[])
+    proj = ProjectRepo.add_project(description="ProjectA", user=user_id, tasks=[])
     task = TaskRepo.add_task(description="Task1", user=user_id)
-    assert GTDRepo.delete_project_task(proj["id"], task["id"], user_id) == False
+    assert ProjectRepo.delete_project_task(proj["id"], task["id"], user_id) == False

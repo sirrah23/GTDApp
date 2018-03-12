@@ -108,7 +108,7 @@ class ItemRepo:
         if not item:
             return None
         description = item.description
-        project = GTDRepo.add_project(description, user_id)
+        project = ProjectRepo.add_project(description, user_id)
         if not project:
             return None
         item.delete()
@@ -255,16 +255,22 @@ class TaskRepo:
         if not task:
             return None
         description = task.description
-        project = GTDRepo.add_project(description, user_id)
+        project = ProjectRepo.add_project(description, user_id)
         if not project:
             return None
         task.delete()
         return project
 
 
-class GTDRepo:
+class ProjectRepo:
+    """
+    A repository class to be used for performing Task-specific database
+    manipulations.
+    """
+
 
     connected = False
+    project_model = Project
 
     @classmethod
     def connect(cls, db_name):
@@ -275,7 +281,7 @@ class GTDRepo:
     def add_project(cls, description, user, tasks=[]):
         if not cls.connected:
             return
-        p = Project(description=description, tasks=tasks, user=user)
+        p = cls.project_model(description=description, tasks=tasks, user=user)
         p.save()
         res = {}
         res["id"] = str(p.id)
@@ -290,9 +296,9 @@ class GTDRepo:
         if not cls.connected:
             return None
         if not user:
-            projects = Project.objects()
+            projects = cls.project_model.objects()
         else:
-            projects = Project.objects(user=user)
+            projects = cls.project_model.objects(user=user)
         res = []
         for project in projects:
             res.append({
@@ -311,7 +317,7 @@ class GTDRepo:
             return
         if not ObjectId.is_valid(project_id) or not ObjectId.is_valid(user_id):
             return
-        p = Project.objects(id=project_id, user=user_id).first()
+        p = cls.project_model.objects(id=project_id, user=user_id).first()
         if not p:
             return
         t = TaskRepo.add_task(description, user_id, project=True)
@@ -328,7 +334,7 @@ class GTDRepo:
             or not ObjectId.is_valid(task_id)
             or not ObjectId.is_valid(user_id)):
             return False
-        proj = Project.objects(id=project_id, user=user_id).first()
+        proj = cls.project_model.objects(id=project_id, user=user_id).first()
         if not proj:
             return
         toid = ObjectId(task_id)
@@ -354,7 +360,7 @@ class GTDRepo:
             return False
         if not ObjectId.is_valid(project_id):
             return False
-        project = Project.objects(id=project_id).first()
+        project = cls.project_model.objects(id=project_id).first()
         if not project:
             return False
         project_tasks = project.tasks

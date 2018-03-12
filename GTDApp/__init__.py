@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from flask_login import LoginManager
-from GTDApp.repo import GTDRepo, ItemRepo, TaskRepo, UserRepo
+from GTDApp.repo import ItemRepo, TaskRepo, UserRepo, ProjectRepo
 
 
 # Initialize the app
@@ -20,10 +20,10 @@ login_manager.init_app(app)
 
 
 # Connect to the database
-GTDRepo.connect(app.config["DBNAME"])
 ItemRepo.connect(app.config["DBNAME"])
 TaskRepo.connect(app.config["DBNAME"])
 UserRepo.connect(app.config["DBNAME"])
+ProjectRepo.connect(app.config["DBNAME"])
 
 
 from GTDApp.views import index
