@@ -13,8 +13,9 @@ def item_add():
     if "description" not in payload:
         res = {"success": False}
     else:
+        location = payload.get("location", "inbox")
         res = {}
-        added_item = ItemRepo.add_item(payload["description"], uid)
+        added_item = ItemRepo.add_item(payload["description"], uid, location=location)
         if added_item:
             res["success"] = True
             res["data"] = added_item

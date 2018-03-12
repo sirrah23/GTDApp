@@ -30,6 +30,13 @@ const APIConn = {
     addNewItem(itemDescription){
         return APIUtil.post("/api/item", {description: itemDescription});
     },
+    addNewSomeday(itemDescription){
+        return APIUtil.post("/api/item", 
+            {
+                description: itemDescription, 
+                location: "someday/maybe"
+            });
+    },
     addNewTask(taskDescription){
         return APIUtil.post("/api/task", {description: taskDescription});
     },
@@ -150,8 +157,11 @@ const app = new Vue({
             let APIFunc, listType;
             switch (mode){
                 case 0:
-                case 1:
                     APIFunc = APIConn.addNewItem;
+                    listType = "items";
+                    break;
+                case 1:
+                    APIFunc = APIConn.addNewSomeday;
                     listType = "items";
                     break;
                 case 2:
