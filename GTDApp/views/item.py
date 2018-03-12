@@ -28,7 +28,7 @@ def item_add():
 @login_required
 def item_get():
     uid = current_user.get_obj_id()
-    user_items = ItemRepo.get_all_items(user=uid, str_id=True)
+    user_items = ItemRepo.get_all_items(user=uid)
     res = {}
     res["success"] = True
     res["data"] = user_items

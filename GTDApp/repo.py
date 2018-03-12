@@ -50,7 +50,7 @@ class ItemRepo:
         return True
 
     @classmethod
-    def get_all_items(cls, user=None, str_id=False):
+    def get_all_items(cls, user=None):
         if not cls.connected:
             return None
         if not user:
@@ -60,7 +60,7 @@ class ItemRepo:
         res = []
         for item in items:
             res.append({
-                "id": item.id if not str_id else str(item.id),
+                "id": str(item.id),
                 "description": item.description,
                 "location": item.location
             })
