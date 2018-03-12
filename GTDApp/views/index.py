@@ -2,7 +2,7 @@ from flask import request, render_template, redirect
 from flask_login import login_user, login_required, logout_user, UserMixin, current_user
 from wtforms import Form, BooleanField, StringField, PasswordField, validators
 from GTDApp import app, login_manager
-from GTDApp.repo import GTDRepo
+from GTDApp.repo import UserRepo
 
 
 class LoggedInUserWrapper(UserMixin):
@@ -23,7 +23,7 @@ class LoggedInUserWrapper(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return LoggedInUserWrapper(GTDRepo.get_user_by_id(user_id))
+    return LoggedInUserWrapper(UserRepo.get_user_by_id(user_id))
 
 
 class RegistrationForm(Form):
@@ -43,7 +43,7 @@ def login():
         return redirect("/home")
     error = None
     if request.method == "POST":
-        user = GTDRepo.get_user_by_username(request.form["username"])
+        user = UserRepo.get_user_by_username(request.form["username"])
         if user and user.password == request.form["password"]:
             user = LoggedInUserWrapper(user)
             login_user(user)

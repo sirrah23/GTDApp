@@ -115,7 +115,57 @@ class ItemRepo:
         return project
 
 
+class UserRepo:
+    """
+    A repository class to be used for performing User-specific database
+    manipulations.
+    """
+
+    connected = False
+    user_model = User
+
+    @classmethod
+    def connect(cls, db_name):
+        database_setup(db_name)
+        cls.connected = True
+
+    @classmethod
+    def add_user(cls, username, password, email):
+        if cls.connected:
+            u = cls.user_model(username=username, password=password, email=email)
+            u.save()
+
+    @classmethod
+    def get_all_users(cls):
+        if cls.connected:
+            return list(cls.user_model.objects())
+        else:
+            return None
+
+    @classmethod
+    def get_user_by_id(cls, uid):
+        if cls.connected:
+            res =  cls.user_model.objects(id=uid)
+            if res.count() > 0:
+                return res.first()
+            else:
+                return None
+
+    @classmethod
+    def get_user_by_username(cls, username):
+        if cls.connected:
+            res =  cls.user_model.objects(username=username)
+            if res.count() > 0:
+                return res.first()
+            else:
+                return None
+
+
 class TaskRepo:
+    """
+    A repository class to be used for performing Task-specific database
+    manipulations.
+    """
 
     connected = False
     task_model = Task
@@ -254,37 +304,6 @@ class GTDRepo:
                           for task in project.tasks]
             })
         return res
-
-    @classmethod
-    def add_user(cls, username, password, email):
-        if cls.connected:
-            u = User(username=username, password=password, email=email)
-            u.save()
-
-    @classmethod
-    def get_all_users(cls):
-        if cls.connected:
-            return list(User.objects())
-        else:
-            return None
-
-    @classmethod
-    def get_user_by_id(cls, uid):
-        if cls.connected:
-            res =  User.objects(id=uid)
-            if res.count() > 0:
-                return res.first()
-            else:
-                return None
-
-    @classmethod
-    def get_user_by_username(cls, username):
-        if cls.connected:
-            res =  User.objects(username=username)
-            if res.count() > 0:
-                return res.first()
-            else:
-                return None
 
     @classmethod
     def add_project_task(cls, project_id, description, user_id):
