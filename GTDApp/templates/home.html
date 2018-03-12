@@ -9,10 +9,9 @@
     {% raw %}
     <div class="container">
       <div id="app">
-          <!-- TODO: Inline these buttons...flexbox? -->
           <div id="header">
-            <span id="button-back"><button v-on:click="toggleModeBackward()"><<<</button></span>
-            <span id="button-forward"><button v-on:click="toggleModeForward()">>>></button></span>
+            <span id="screenback"><button v-on:click="toggleModeBackward()"><<<</button></span>
+            <span id="screenforward"><button v-on:click="toggleModeForward()">>>></button></span>
           </div>
           <div id="content">
             <div id="input-box">
@@ -33,10 +32,10 @@
                             {{ item.description }}
                         </div>
                         <div class="content-list-item-column-2">
-                            <button class=tasks @click="itemToSomeday(item.id)" v-if="mode === 0">TS</button>
-                            <button class=tasks @click="itemToTask(item.id)">TT</button>
-                            <button class=project @click="itemToProject(item.id)">TP</button>
-                            <button class=delete @click="deleteGTDThing(mode, item.id)">X</button>
+                            <button class="itemtosomeday" @click="itemToSomeday(item.id)" v-if="mode === 0">TS</button>
+                            <button class="itemtotask" @click="itemToTask(item.id)">TT</button>
+                            <button class="itemtoproject" @click="itemToProject(item.id)">TP</button>
+                            <button class="itemdelete" @click="deleteGTDThing(mode, item.id)">X</button>
                         </div>
                     </li>
                 </ul>
@@ -50,9 +49,9 @@
                         </div>
                         <div class="content-list-item-column-2">
                             {{ task.status.toUpperCase() }}
-                            <button class="toggle" @click="toggleTaskStatus(mode, task)">Toggle</button>
-                            <button @click="taskToProject(task.id)">TP</button>
-                            <button class="delete" @click="deleteTask(task.id)">X</button>
+                            <button class="tasktoggle" @click="toggleTaskStatus(mode, task)">Toggle</button>
+                            <button class="tasktoproject" @click="taskToProject(task.id)">TP</button>
+                            <button class="taskdelete" @click="deleteTask(task.id)">X</button>
                         </div>
                     </li>
                 </ul>
@@ -65,8 +64,8 @@
                             {{ project.description }}
                         </div>
                         <div class="content-list-item-column-2">
-                             <button class="add" @click="focusProject(project.id)">+</button>
-                             <button class=delete @click="deleteGTDThing(mode, project.id)">X</button>
+                             <button class="projectadd" @click="focusProject(project.id)">+</button>
+                             <button class="projectdelete" @click="deleteGTDThing(mode, project.id)">X</button>
                         </div>
                         <ul class="content-list" id="project-tasks">
                             <li class="content-list-item" v-for="task in project.tasks">
@@ -75,8 +74,8 @@
                                     {{ task.description }} ---- {{ task.status.toUpperCase() }}
                                 </div>
                                 <div class="content-list-item-column-2">
-                                    <button class="toggle" @click="toggleTaskStatus(mode, task)">Toggle</button>
-                                    <button class=delete @click="deleteProjectSubtask({'pid': project.id, 'tid': task.id})">X</button>
+                                    <button class="projecttasktoggle" @click="toggleTaskStatus(mode, task)">Toggle</button>
+                                    <button class="projecttaskdelete" @click="deleteProjectSubtask({'pid': project.id, 'tid': task.id})">X</button>
                                 </div>
                             </li>
                             <li class="content-list-item" v-if="focusedProjectID === project.id">
