@@ -1,17 +1,75 @@
+import time
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from GTDApp import app
+from GTDApp.repo import UserRepo
+from utils import drop_db, random_objectid
+
+
+URL = "http:localhost:5000"  # Location of our application
+DB = app.config["DBNAME"]  # Database containing our test data
 
 
 class TestMainPage:
 
     def setup_method(self, method):
-        #TODO: Add database setup code when we add more complicated tests
         self.driver = webdriver.Firefox()
 
     def test_can_hit_main_page(self):
-        self.driver.get("http:localhost:5000")
+        self.driver.get(URL)
         assert "GTD App" in self.driver.title
 
     def teardown_method(self, method):
-        #TODO: Add database teardown code when we add more complicated tests
         self.driver.quit()
 
+
+class TestLoginAndGo:
+
+    def setup_method(self, method):
+        # User details
+        self.username = "user1"
+        self.password = "mypass"
+        self.email = "user@gtd.com"
+        # Create a user id that we can use to log in
+        UserRepo.connect(DB)
+        UserRepo.add_user(username=self.username, password=self.password, email=self.email)
+        # Set up the driver so we can use the browser
+        self.driver = webdriver.Firefox()
+
+    def test_log_in_and_add_item(self):
+        self.driver.get(URL)
+        # Get username and password elements
+        userelem = self.driver.find_element_by_name("username")
+        passwordelem = self.driver.find_element_by_name("password")
+        # Type in username and password so we can log in
+        userelem.clear()
+        userelem.send_keys(self.username)
+        passwordelem.clear()
+        passwordelem.send_keys(self.password)
+        passwordelem.send_keys(Keys.RETURN)
+        try:
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.ID, "app"))
+            )
+        except:
+            self.driver.quit()
+            drop_db(DB)
+            assert False  # Website did not load upon clicking link
+        # Find the input where we can enter items 
+        input_box = self.driver.find_element_by_tag_name("input")
+        input_box.send_keys("Item 1")
+        input_box.send_keys(Keys.RETURN)
+        time.sleep(0.5) # Let the post request go through
+        # Make sure the item is in the list of items
+        item_list_content = [el.text for el in self.driver.find_elements_by_class_name("content-list-item-column-1")]
+        assert len(item_list_content) == 1
+        assert item_list_content[0] == "Item 1"
+
+    def teardown_method(self, method):
+        # Closer the browser
+        self.driver.quit()
+        # Dump the test database contents
+        drop_db(DB)
