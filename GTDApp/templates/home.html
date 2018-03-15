@@ -28,7 +28,7 @@
             <div class="content-list-box">
                 <ul class="content-list" id="items" v-if="mode === 0 || mode === 1">
                     <li class="content-list-item" v-for="item in items" v-if="item.location === modeStr.toLowerCase()">
-                        <div class="content-list-item-column-1">
+                        <div class="content-list-item-column-1 gtd-item">
                             {{ item.description }}
                         </div>
                         <div class="content-list-item-column-2">
@@ -44,7 +44,7 @@
             <div class="content-list-box">
                 <ul class="content-list" id="tasks" v-if="mode === 2">
                     <li class="content-list-item" v-for="task in tasks">
-                        <div class="content-list-item-column-1">
+                        <div class="content-list-item-column-1 gtd-task">
                             {{ task.description }}
                         </div>
                         <div class="content-list-item-column-2">
@@ -60,7 +60,7 @@
             <div class="content-list-box">
                 <ul class="content-list" id="projects" v-if="mode === 3" v-on:keyup.esc = "noFocusProject()">
                     <li class="content-list-item" v-for="project in projects">
-                        <div class="content-list-item-column-1">
+                        <div class="content-list-item-column-1 gtd-project">
                             {{ project.description }}
                         </div>
                         <div class="content-list-item-column-2">
@@ -70,7 +70,7 @@
                         <ul class="content-list" id="project-tasks">
                             <li class="content-list-item" v-for="task in project.tasks">
                                 <!-- TODO: Task component? We could abstract it and use it in two places-->
-                                <div class="content-list-item-column-1">
+                                <div class="content-list-item-column-1 gtd-project-task">
                                     {{ task.description }} ---- {{ task.status.toUpperCase() }}
                                 </div>
                                 <div class="content-list-item-column-2">
