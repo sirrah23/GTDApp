@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.firefox.options import Options
 from GTDApp import app
 from GTDApp.repo import UserRepo
 from utils import drop_db
@@ -13,10 +14,14 @@ URL = "http:localhost:5000"  # Location of our application
 DB = app.config["DBNAME"]  # Database containing our test data
 
 
+# Headless browser options
+opts = Options()
+opts.add_argument("--headless")
+
 class TestMainPage:
 
     def setup_method(self, method):
-        self.driver = webdriver.Firefox()
+        self.driver = webdriver.Firefox(firefox_options=opts)
 
     def test_can_hit_main_page(self):
         self.driver.get(URL)
@@ -37,7 +42,7 @@ class TestLoginAndGo:
         UserRepo.connect(DB)
         UserRepo.add_user(username=self.username, password=self.password, email=self.email)
         # Set up the driver so we can use the browser
-        self.driver = webdriver.Firefox()
+        self.driver = webdriver.Firefox(firefox_options=opts)
 
     def test_log_in_and_add_item(self):
         self.driver.get(URL)
