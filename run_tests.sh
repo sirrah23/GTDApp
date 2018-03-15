@@ -1,4 +1,4 @@
 #!/bin/bash
 
-CONFIG_TYPE="test" python -m pytest test/
+CONFIG_TYPE="test" python -m pytest -s test/
 
