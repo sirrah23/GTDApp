@@ -44,7 +44,7 @@ def login():
     error = None
     if request.method == "POST":
         user = UserRepo.get_user_by_username(request.form["username"])
-        if user and user.password == request.form["password"]:
+        if UserRepo.verify_user(request.form["username"], request.form["password"]):
             user = LoggedInUserWrapper(user)
             login_user(user)
             return redirect("/home")
@@ -59,6 +59,7 @@ def register():
         return redirect("/home")
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
+        # TODO: Do an actual registration
         print(form.username.data, form.email.data,
                     form.password.data)
         flash('Thanks for registering')

@@ -6,7 +6,7 @@ from GTDApp.repo import ItemRepo, TaskRepo, UserRepo, ProjectRepo
 
 # Initialize the app
 app = Flask(__name__)
-app.secret_key = "myspookysecret"
+app.secret_key = "myspookysecret"  # TODO: Make this configurable
 
 if os.environ.get("CONFIG_TYPE") == "test":
     app.config.from_pyfile(os.path.join(os.path.dirname(__file__), "..", "./config/config.cfg.test"))

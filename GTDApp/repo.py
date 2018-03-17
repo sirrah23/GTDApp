@@ -1,5 +1,6 @@
 from bson import ObjectId
 from .schema import database_setup, Item, Task, Project, User
+from passlib.hash import sha256_crypt
 
 
 """
@@ -131,9 +132,14 @@ class UserRepo:
 
     @classmethod
     def add_user(cls, username, password, email):
-        if cls.connected:
-            u = cls.user_model(username=username, password=password, email=email)
-            u.save()
+        if not cls.connected:
+            return False
+        if cls.user_already_exists(username):
+            return False
+        pass_hash = sha256_crypt.encrypt(password)
+        u = cls.user_model(username=username, password=pass_hash, email=email)
+        u.save()
+        return True
 
     @classmethod
     def get_all_users(cls):
@@ -141,6 +147,10 @@ class UserRepo:
             return list(cls.user_model.objects())
         else:
             return None
+        
+    @classmethod
+    def user_already_exists(cls, username):
+        return not cls.get_user_by_username(username) == None
 
     @classmethod
     def get_user_by_id(cls, uid):
@@ -159,6 +169,15 @@ class UserRepo:
                 return res.first()
             else:
                 return None
+    
+    @classmethod
+    def verify_user(cls, username, password):
+        if not cls.connected:
+            return False
+        user = cls.get_user_by_username(username)
+        if not user:
+            return False  # NOTE: Would it be better to throw an error here? :/
+        return sha256_crypt.verify(password, user.password)
 
 
 class TaskRepo:
